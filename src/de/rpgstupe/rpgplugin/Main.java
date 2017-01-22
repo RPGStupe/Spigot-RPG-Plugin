@@ -18,11 +18,7 @@ public class Main extends JavaPlugin {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (command.getName().equalsIgnoreCase("mycommand")) {
-			sender.sendMessage("You ran /mycommand!");
-			return true;
-		}
-		return false;
+		keklord overlord
 	}
 
 }
