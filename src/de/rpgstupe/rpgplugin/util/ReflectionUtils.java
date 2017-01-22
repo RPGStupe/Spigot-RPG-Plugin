@@ -1,4 +1,4 @@
-package de.rpgstupe.rpgplugin;
+package de.rpgstupe.rpgplugin.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

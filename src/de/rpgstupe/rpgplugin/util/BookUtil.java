@@ -1,4 +1,4 @@
-package de.rpgstupe.rpgplugin;
+package de.rpgstupe.rpgplugin.util;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import de.rpgstupe.rpgplugin.ReflectionUtils.PackageType;
+import de.rpgstupe.rpgplugin.util.ReflectionUtils.PackageType;
 /**
 * Create a "Virtual" book gui that doesn't require the user to have a book in their hand.
 * Requires ReflectionUtil class.
