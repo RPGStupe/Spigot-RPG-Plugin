@@ -25,7 +25,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import de.rpgstupe.rpgplugin.CustomEntities.CustomVillager;
+import de.rpgstupe.rpgplugin.customentities.CustomVillager;
 import de.rpgstupe.rpgplugin.util.NMSUtil;
 import net.minecraft.server.v1_11_R1.World;
 

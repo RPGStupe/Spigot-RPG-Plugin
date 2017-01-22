@@ -1,4 +1,4 @@
-package de.rpgstupe.rpgplugin.CustomEntities;
+package de.rpgstupe.rpgplugin.customentities;
 
 import java.lang.reflect.Field;
 
