@@ -101,7 +101,7 @@ public class Main extends JavaPlugin implements Listener {
 			// p.getInventory().setItem(1, createMap());
 
 			this.getServer().broadcastMessage(
-					"Spawning Zombie with " + vill.getHealth() + " Health and " + vill.getArmor() + " Armor");
+					"Spawning Villager with " + vill.getHealthPoints() + " Health and " + vill.getArmor() + " Armor");
 			return true;
 		}
 		return false;
@@ -116,10 +116,10 @@ public class Main extends JavaPlugin implements Listener {
 		if (damager instanceof Player ) {
 			if (((CraftEntity) damagee).getHandle() instanceof CustomVillager) {
 				CustomVillager vill = (CustomVillager) ((CraftEntity) damagee).getHandle();
-				vill.applyDamage(100 - vill.getArmor());
+				vill.applyDamage(20 - vill.getArmor());
 				event.setDamage(0);
 				this.getServer().broadcastMessage(
-						"Dealt " + (10 - vill.getArmor()) + " Damage, cause Villager Armor is " + vill.getArmor());
+						"Dealt " + (20 - vill.getArmor()) + " Damage, cause Villager Armor is " + vill.getArmor());
 
 				this.getServer().broadcastMessage(
 						"Villager Health: " + vill.getHealthPoints());
