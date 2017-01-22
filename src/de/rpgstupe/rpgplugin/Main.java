@@ -82,6 +82,8 @@ public class Main extends JavaPlugin implements Listener {
 			// BookUtil.openBook(createBook("HI", "MEGAHIGH"), p);
 			// p.getInventory().setItem(1, createMap());
 			KrasserZombie z = (KrasserZombie) this.getServer().getWorld("world").spawn(p.getLocation(), KrasserZombie.class);
+			z.setCustomName("hi");
+			z.setCustomNameVisible(true);
 			this.getServer().broadcastMessage("Spawning Zombie with 1 Health");
 			return true;
 		}

@@ -24,7 +24,7 @@ public class KrasserZombie extends CraftMonster implements Zombie {
 
     @Override
     public String toString() {
-        return "CraftZombie";
+        return "KrasserZombie";
     }
 
     public EntityType getType() {
