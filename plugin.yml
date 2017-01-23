@@ -1,11 +1,37 @@
 main: de.rpgstupe.rpgplugin.Main
-name: MyPlugin
+name: RPGPlugin
 version: 1.0
 author: me
 description: An Example plugin
+depend: [ProtocolLib]
 commands:
   mycommand:
     description: An example command
     usage: /mycommand
     permission: myplugin.mycommand
     permission-message: You don't have the myplugin.mycommand permission.
+  myinventory:
+    description: An example command
+    usage: /myinventory
+    permission: myplugin.myinventory
+    permission-message: You don't have the myplugin.myinventory permission.
+  myskill:
+    description: An example command
+    usage: /myskill
+    permission: myplugin.myskill
+    permission-message: You don't have the myplugin.myskill permission.
+  myrespawn:
+    description: An example command
+    usage: /myrespawn
+    permission: myplugin.myrespawn
+    permission-message: You don't have the myplugin.myrespawn permission.
+  mydamagetext:
+    description: An example command
+    usage: /mydamagetext
+    permission: myplugin.mydamagetext
+    permission-message: You don't have the myplugin.mydamagetext permission.
+  killall:
+    description: An example command
+    usage: /killall
+    permission: myplugin.killall
+    permission-message: You don't have the myplugin.killall permission.

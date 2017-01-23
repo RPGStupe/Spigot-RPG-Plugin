@@ -1,0 +1,19 @@
+hotbar:
+  slots:
+    spell0: 0
+    spell1: 1
+    spell2: 2
+    spell3: 3
+    weapon: 4
+    respawn: 7
+    menu: 8
+inventory:
+  slots:
+    money_small: 12
+    money_medium: 13
+    money_big: 14
+money:
+  exchangerate:
+    small_to_medium: 100
+    medium_to_large: 100
+    max_amount_large: 127

@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 
 import org.bukkit.craftbukkit.v1_11_R1.util.UnsafeList;
 
-import net.minecraft.server.v1_11_R1.DamageSource;
 import net.minecraft.server.v1_11_R1.EntityHuman;
 import net.minecraft.server.v1_11_R1.EntityVillager;
 import net.minecraft.server.v1_11_R1.PathfinderGoalFloat;

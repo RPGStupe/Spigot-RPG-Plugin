@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import de.rpgstupe.rpgplugin.util.ReflectionUtils.PackageType;
+import de.rpgstupe.rpgplugin.util.ReflectionUtil.PackageType;
 /**
 * Create a "Virtual" book gui that doesn't require the user to have a book in their hand.
 * Requires ReflectionUtil class.
@@ -22,8 +22,8 @@ public class BookUtil {
    
    static {
       try {
-         getHandle = ReflectionUtils.getMethod("CraftPlayer", PackageType.CRAFTBUKKIT_ENTITY, "getHandle");
-         openBook = ReflectionUtils.getMethod("EntityPlayer", PackageType.MINECRAFT_SERVER, "a", PackageType.MINECRAFT_SERVER.getClass("ItemStack"), PackageType.MINECRAFT_SERVER.getClass("EnumHand"));
+         getHandle = ReflectionUtil.getMethod("CraftPlayer", PackageType.CRAFTBUKKIT_ENTITY, "getHandle");
+         openBook = ReflectionUtil.getMethod("EntityPlayer", PackageType.MINECRAFT_SERVER, "a", PackageType.MINECRAFT_SERVER.getClass("ItemStack"), PackageType.MINECRAFT_SERVER.getClass("EnumHand"));
          initialised = true;
       } catch (ReflectiveOperationException e) {
          e.printStackTrace();
@@ -63,7 +63,7 @@ public class BookUtil {
 
    public static Object getItemStack(ItemStack item) {
       try {
-         Method asNMSCopy = ReflectionUtils.getMethod(PackageType.CRAFTBUKKIT_INVENTORY.getClass("CraftItemStack"), "asNMSCopy", ItemStack.class);
+         Method asNMSCopy = ReflectionUtil.getMethod(PackageType.CRAFTBUKKIT_INVENTORY.getClass("CraftItemStack"), "asNMSCopy", ItemStack.class);
          return asNMSCopy.invoke(PackageType.CRAFTBUKKIT_INVENTORY.getClass("CraftItemStack"), item);
       } catch (Exception e) {
          e.printStackTrace();
@@ -81,9 +81,9 @@ public class BookUtil {
       List<Object> p;
       Object page;
       try {
-         p = (List<Object>) ReflectionUtils.getField(PackageType.CRAFTBUKKIT_INVENTORY.getClass("CraftMetaBook"), true, "pages").get(metadata);
+         p = (List<Object>) ReflectionUtil.getField(PackageType.CRAFTBUKKIT_INVENTORY.getClass("CraftMetaBook"), true, "pages").get(metadata);
          for (String text : pages) {
-            page = ReflectionUtils.invokeMethod(ReflectionUtils.PackageType.MINECRAFT_SERVER.getClass("IChatBaseComponent$ChatSerializer").newInstance(), "a", text);
+            page = ReflectionUtil.invokeMethod(ReflectionUtil.PackageType.MINECRAFT_SERVER.getClass("IChatBaseComponent$ChatSerializer").newInstance(), "a", text);
             p.add(page);
          }
       } catch (Exception e) {
