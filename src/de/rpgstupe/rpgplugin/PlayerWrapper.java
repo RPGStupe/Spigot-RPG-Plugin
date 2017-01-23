@@ -2,17 +2,30 @@ package de.rpgstupe.rpgplugin;
 
 import java.util.UUID;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import de.rpgstupe.rpgplugin.inventory.FakeInventory;
+
 public class PlayerWrapper {
+
+	public boolean isInventoryOpen() {
+		return isInventoryOpen;
+	}
+
+	public void setInventoryOpen(boolean isInventoryOpen) {
+		this.isInventoryOpen = isInventoryOpen;
+	}
 
 	// Create a variable to store the player
 	private Player player;
 
 	private int moneySmallAmount;
 	private int moneyMediumAmount;
-	private int moneyBigAmount;
+	private int moneyLargeAmount;
+	
+	private boolean isInventoryOpen = false;
+	
+	private FakeInventory fakeInventory;
 
 	// Constructor to pass on the player object
 	public PlayerWrapper(Player player) {
@@ -21,7 +34,9 @@ public class PlayerWrapper {
 		
 		this.moneySmallAmount = moneySmallAmount;
 		this.moneyMediumAmount = moneyMediumAmount;
-		this.moneyBigAmount = moneyBigAmount;
+		this.moneyLargeAmount = moneyLargeAmount;
+		
+		this.fakeInventory = new FakeInventory(41);
 	}
 
 	// Getter to get the player object
@@ -49,11 +64,15 @@ public class PlayerWrapper {
 		this.moneyMediumAmount = moneyMediumAmount;
 	}
 
-	public int getMoneyBigAmount() {
-		return moneyBigAmount;
+	public int getMoneyLargeAmount() {
+		return moneyLargeAmount;
 	}
 
-	public void setMoneyBigAmount(int moneyBigAmount) {
-		this.moneyBigAmount = moneyBigAmount;
+	public void setMoneyLargeAmount(int moneyBigAmount) {
+		this.moneyLargeAmount = moneyBigAmount;
+	}
+	
+	public FakeInventory getFakeInventory() {
+		return fakeInventory;
 	}
 }

@@ -13,6 +13,16 @@ inventory:
     money_medium: 13
     money_big: 14
 money:
+  items:
+    money_small_item: IRON_NUGGET
+    money_medium_item: GOLD_NUGGET
+    money_large_item: GOLD_INGOT
+  durabilities:
+    use_durability_item: false # only if using tools with durability for custom item models
+    money_small_durability: 1
+    money_medium_durability: 2
+    money_large_durability: 3
+    unbreaking: true # 1 if the tool will have unbreaking
   exchangerate:
     small_to_medium: 100
     medium_to_large: 100

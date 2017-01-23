@@ -48,6 +48,7 @@ import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedServerPing;
 
 import de.rpgstupe.rpgplugin.customentities.CustomVillager;
+import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
 import de.rpgstupe.rpgplugin.inventory.PlayerInventory;
 import de.rpgstupe.rpgplugin.util.BookUtil;
 import de.rpgstupe.rpgplugin.util.NMSUtil;
@@ -88,7 +89,6 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent e) {
 		ItemStack[] itemStack = e.getPlayer().getInventory().getContents();
-		System.out.println("Got Inventory");
 		int emeralds = 0;
 		for (int i = 0; i < itemStack.length; i++) {
 			if (itemStack[i] != null) {
@@ -307,8 +307,13 @@ public class Main extends JavaPlugin implements Listener {
 		return writtenBook;
 	}
 	
-	public static PlayerWrapper getPlayerWrapperFromPlayer(Player p) {
-		return PLAYER_WRAPPER_LIST.get(PLAYER_WRAPPER_LIST.indexOf(p.getUniqueId()));
+	public static PlayerWrapper getPlayerWrapperFromUUID(UUID uuid) throws NoSuchPlayerInWrapperListException {
+		for (PlayerWrapper pw : Main.PLAYER_WRAPPER_LIST) {
+			if (pw.getUniqueId().equals(uuid)) {
+				return pw;
+			}
+		}
+		throw new NoSuchPlayerInWrapperListException();
 	}
 
 }
