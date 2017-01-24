@@ -1,6 +1,7 @@
 package de.rpgstupe.rpgplugin.inventory;
 
 import org.bukkit.Achievement;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -151,9 +152,11 @@ public class PlayerInventory implements Listener {
 		event.setCancelled(true);
 		try {
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
-			if (pw.getFakeInventory().isItemStackFitInInventory(event.getItem().getItemStack())) {
+			if (pw.getFakeInventory().isCustomItemStackFitInInventory(new CustomItemStack(event.getItem().getItemStack()))) {
 				event.getItem().remove();
-				pw.getFakeInventory().addItemStack(event.getItem().getItemStack());
+				//TODO Tonlage
+				event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 6.0F, 5F);
+				pw.getFakeInventory().addCustomItemStack(new CustomItemStack(event.getItem().getItemStack()));
 				for (int i = 0; i < 9; i++) {
 					if (pw.getFakeInventory().get(i) != null) {
 						event.getPlayer().getInventory().setItem(i, new ItemStack(pw.getFakeInventory().get(i)));

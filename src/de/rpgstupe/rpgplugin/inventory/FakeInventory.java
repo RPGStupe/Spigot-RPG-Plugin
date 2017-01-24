@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import org.bukkit.inventory.ItemStack;
 
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
-import net.minecraft.server.v1_11_R1.Material;
 
 @SuppressWarnings("serial")
-public class FakeInventory extends ArrayList<ItemStack> {
+public class FakeInventory extends ArrayList<CustomItemStack> {
 	private int inventorySize;
 
 	public FakeInventory(int inventorySize) {
@@ -23,17 +22,17 @@ public class FakeInventory extends ArrayList<ItemStack> {
 	}
 
 	/**
-	 * adds an itemstack to the fakeinventory (merges into existing stacks)
+	 * adds an CustomItemStack to the fakeinventory (merges into existing stacks)
 	 * 
-	 * @param stack
+	 * @param itemStack
 	 *            the stack to add
 	 * @return
 	 * @throws ItemDoesNotFitException
-	 *             thrown if the itemstack does not fit
+	 *             thrown if the CustomItemStack does not fit
 	 */
-	public boolean addItemStack(ItemStack stack) throws ItemDoesNotFitException {
-		if (isItemStackFitInInventory(stack)) {
-			mergeStackWithInventory(stack);
+	public boolean addCustomItemStack(CustomItemStack itemStack) throws ItemDoesNotFitException {
+		if (isCustomItemStackFitInInventory(itemStack)) {
+			mergeStackWithInventory(itemStack);
 			return true;
 		} else {
 			throw new ItemDoesNotFitException();
@@ -43,17 +42,17 @@ public class FakeInventory extends ArrayList<ItemStack> {
 	/**
 	 * checks if the fakeinventory has space for the stack
 	 * 
-	 * @param stack
+	 * @param itemStack
 	 *            the stack that should fit
 	 * @return
 	 */
-	public boolean isItemStackFitInInventory(ItemStack stack) {
-		int tempStackSize = stack.getAmount();
+	public boolean isCustomItemStackFitInInventory(CustomItemStack itemStack) {
+		int tempStackSize = itemStack.getAmount();
 
-		for (ItemStack i : this) {
+		for (CustomItemStack i : this) {
 			if (i == null) {
-				tempStackSize -= stack.getMaxStackSize();
-			} else if (i.isSimilar(stack)) {
+				tempStackSize -= itemStack.getMaxStackSize();
+			} else if (i.isSimilar(itemStack)) {
 				if (i.getAmount() < i.getMaxStackSize()) {
 					tempStackSize -= i.getMaxStackSize() - i.getAmount();
 				}
@@ -62,11 +61,11 @@ public class FakeInventory extends ArrayList<ItemStack> {
 		return tempStackSize <= 0 ? true : false;
 	}
 
-	private void mergeStackWithInventory(ItemStack stackToMerge) {
-		int stackSizeTemp = stackToMerge.getAmount();
+	private void mergeStackWithInventory(CustomItemStack itemStack) {
+		int stackSizeTemp = itemStack.getAmount();
 
-		for (ItemStack stackInFakeInv : this) {
-			if (stackToMerge.isSimilar(stackInFakeInv)
+		for (CustomItemStack stackInFakeInv : this) {
+			if (itemStack.isSimilar(stackInFakeInv)
 					&& stackInFakeInv.getAmount() < stackInFakeInv.getMaxStackSize()) {
 				if (stackSizeTemp + stackInFakeInv.getAmount() <= stackInFakeInv.getMaxStackSize()) {
 					// passt komplett auf den Stack
@@ -80,21 +79,22 @@ public class FakeInventory extends ArrayList<ItemStack> {
 			}
 		}
 		if (stackSizeTemp > 0) {
-			ItemStack tempStack = new ItemStack(stackToMerge);
+			CustomItemStack tempStack = new CustomItemStack(itemStack);
 			tempStack.setAmount(stackSizeTemp);
 			this.set(this.indexOf(null), tempStack);
 		}
 	}
 
-	public void setComplete(ItemStack[] contents) {
+	public void setComplete(ItemStack[] itemStacks) {
 		int counter = 0;
-		for (ItemStack s : contents) {
+		for (ItemStack s : itemStacks) {
 			if (s != null) {
-				this.set(counter, new ItemStack(s));
+				this.set(counter, new CustomItemStack(s));
 			} else {
 				this.set(counter, null);
 			}
 			counter++;
 		}
 	}
+
 }
