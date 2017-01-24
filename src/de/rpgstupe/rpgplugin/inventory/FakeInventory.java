@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.bukkit.inventory.ItemStack;
 
+import de.rpgstupe.rpgplugin.PlayerWrapper;
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 
 @SuppressWarnings("serial")
@@ -12,9 +13,12 @@ public class FakeInventory extends ArrayList<CustomItemStack> {
 
 	/**
 	 * this is an exact copy of the Player Ingame Inventory. It makes it easier
-	 * to handle the stacksizes and slots of certain items (e.g. the money or skills)
+	 * to handle the stacksizes and slots of certain items (e.g. the money or
+	 * skills)
 	 * 
-	 * @param inventorySize the size of the inventory (should be the ingame inventory size for players)
+	 * @param inventorySize
+	 *            the size of the inventory (should be the ingame inventory size
+	 *            for players)
 	 */
 	public FakeInventory(int inventorySize) {
 		this.inventorySize = inventorySize;
@@ -102,4 +106,27 @@ public class FakeInventory extends ArrayList<CustomItemStack> {
 			this.add(null);
 		}
 	}
+
+//	public boolean isMoneyFitInInventory(CustomItemStack customItemStack, PlayerWrapper pw) {
+//		int tempStackSize = customItemStack.getAmount();
+//		String itemName = customItemStack.getType().name();
+//		if (MoneyStacksManager.moneySmallItem.equals(itemName)) {
+//			if (pw.getMoneySmallAmount() + customItemStack.getAmount() <= )
+//		} else if (MoneyStacksManager.moneyMediumItem.equals(itemName)) {
+//
+//		} else if (MoneyStacksManager.moneyLargeItem.equals(itemName)) {
+//
+//		}
+//
+//		for (CustomItemStack i : this) {
+//			if (i == null) {
+//				tempStackSize -= customItemStack.getMaxStackSize();
+//			} else if (i.isSimilar(customItemStack)) {
+//				if (i.getAmount() < i.getMaxStackSize()) {
+//					tempStackSize -= i.getMaxStackSize() - i.getAmount();
+//				}
+//			}
+//		}
+//		return tempStackSize <= 0 ? true : false;
+//	}
 }

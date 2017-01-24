@@ -15,6 +15,10 @@ public class MoneyStacksManager {
 	public static String moneySmallItem;
 	public static String moneyMediumItem;
 	public static String moneyLargeItem;
+
+	public static int moneySmallSlot;
+	public static int moneyMediumSlot;
+	public static int moneyLargeSlot;
 	
 	private FileConfiguration playerInvConfig;
 	
@@ -33,7 +37,7 @@ public class MoneyStacksManager {
 	 * @param medium the amount of moneyMedium in the inventory
 	 * @param large the amount of moneyLarge in the inventory
 	 */
-	public void mergeMoneyAndWriteToPlayerWrapper(PlayerWrapper pw, int small, int medium, int large) {
+	public static void mergeMoneyAndWriteToPlayerWrapper(PlayerWrapper pw, int small, int medium, int large) {
 		int tempSmall = small;
 		int tempMedium = medium;
 		int tempLarge = large;
@@ -67,5 +71,9 @@ public class MoneyStacksManager {
 		MoneyStacksManager.moneySmallItem = playerInvConfig.getString("money.items.money_small_item");
 		MoneyStacksManager.moneyMediumItem = playerInvConfig.getString("money.items.money_medium_item");
 		MoneyStacksManager.moneyLargeItem = playerInvConfig.getString("money.items.money_large_item");
+		
+		MoneyStacksManager.moneySmallSlot = playerInvConfig.getInt("money.slots.money_small");
+		MoneyStacksManager.moneyMediumSlot = playerInvConfig.getInt("money.slots.money_medium");
+		MoneyStacksManager.moneyLargeSlot = playerInvConfig.getInt("money.slots.money_large");
 	}
 }

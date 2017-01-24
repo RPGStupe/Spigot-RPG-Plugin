@@ -1,6 +1,6 @@
 package de.rpgstupe.rpgplugin.inventory;
 
-import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 
 public class CustomItemStack extends ItemStack {
@@ -9,11 +9,19 @@ public class CustomItemStack extends ItemStack {
 		super(itemStack);
 	}
 
+	public CustomItemStack(Item item) {
+		super(new CustomItemStack(new ItemStack(item.getItemStack().getType())));
+	}
+
 	@Override
 	public int getMaxStackSize() {
 		int stackSize;
-		if (Material.DIRT.equals(this.getType())) {
-			stackSize = 100;
+		if (MoneyStacksManager.moneySmallItem.equals(this.getType().name())) {
+			stackSize = MoneyStacksManager.moneySmallExchangeRate;
+		} else if (MoneyStacksManager.moneyMediumItem.equals(this.getType().name())) {
+			stackSize = MoneyStacksManager.moneyMediumExchangeRate;
+		} else if (MoneyStacksManager.moneyLargeItem.equals(this.getType().name())) {
+			stackSize = MoneyStacksManager.moneyLargeMaxAmount;
 		} else {
 			stackSize = super.getMaxStackSize();
 		}

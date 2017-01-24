@@ -9,9 +9,9 @@ hotbar:
     menu: 8
 inventory:
   slots:
-    money_small: 12
-    money_medium: 13
-    money_big: 14
+    money_small: 2
+    money_medium: 3
+    money_large: 4
 money:
   items:
     money_small_item: IRON_NUGGET
