@@ -24,18 +24,6 @@ public class MoneyStacksManager {
 		this.playerInvConfig = playerInvConfig;
 		loadConfigDataIntoVariables();
 	}
-
-	private void loadConfigDataIntoVariables() {
-		MoneyStacksManager.moneySmallExchangeRate = playerInvConfig.getInt("money.exchangerate.small_to_medium");
-		MoneyStacksManager.moneyMediumExchangeRate = playerInvConfig.getInt("money.exchangerate.medium_to_large");
-		MoneyStacksManager.moneyLargeMaxAmount = playerInvConfig.getInt("money.exchangerate.max_amount_large");
-
-		MoneyStacksManager.useDurabilityItems = playerInvConfig.getBoolean("money.durabilities.use_durability_item");
-
-		MoneyStacksManager.moneySmallItem = playerInvConfig.getString("money.items.money_small_item");
-		MoneyStacksManager.moneyMediumItem = playerInvConfig.getString("money.items.money_medium_item");
-		MoneyStacksManager.moneyLargeItem = playerInvConfig.getString("money.items.money_large_item");
-	}
 	
 	/**
 	 * This method merges the amount of money given in the parameters using the stacksizes of the config file
@@ -69,4 +57,15 @@ public class MoneyStacksManager {
 		pw.setMoneyLargeAmount(tempLarge);
 	}
 
+	private void loadConfigDataIntoVariables() {
+		MoneyStacksManager.moneySmallExchangeRate = playerInvConfig.getInt("money.exchangerate.small_to_medium");
+		MoneyStacksManager.moneyMediumExchangeRate = playerInvConfig.getInt("money.exchangerate.medium_to_large");
+		MoneyStacksManager.moneyLargeMaxAmount = playerInvConfig.getInt("money.exchangerate.max_amount_large");
+
+		MoneyStacksManager.useDurabilityItems = playerInvConfig.getBoolean("money.durabilities.use_durability_item");
+
+		MoneyStacksManager.moneySmallItem = playerInvConfig.getString("money.items.money_small_item");
+		MoneyStacksManager.moneyMediumItem = playerInvConfig.getString("money.items.money_medium_item");
+		MoneyStacksManager.moneyLargeItem = playerInvConfig.getString("money.items.money_large_item");
+	}
 }

@@ -10,19 +10,20 @@ import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 public class FakeInventory extends ArrayList<CustomItemStack> {
 	private int inventorySize;
 
+	/**
+	 * this is an exact copy of the Player Ingame Inventory. It makes it easier
+	 * to handle the stacksizes and slots of certain items (e.g. the money or skills)
+	 * 
+	 * @param inventorySize the size of the inventory (should be the ingame inventory size for players)
+	 */
 	public FakeInventory(int inventorySize) {
 		this.inventorySize = inventorySize;
 		createEmptyInventory();
 	}
 
-	private void createEmptyInventory() {
-		for (int i = 0; i < inventorySize; i++) {
-			this.add(null);
-		}
-	}
-
 	/**
-	 * adds an CustomItemStack to the fakeinventory (merges into existing stacks)
+	 * adds an CustomItemStack to the fakeinventory (merges into existing
+	 * stacks)
 	 * 
 	 * @param itemStack
 	 *            the stack to add
@@ -61,12 +62,23 @@ public class FakeInventory extends ArrayList<CustomItemStack> {
 		return tempStackSize <= 0 ? true : false;
 	}
 
+	public void setComplete(ItemStack[] itemStacks) {
+		int counter = 0;
+		for (ItemStack s : itemStacks) {
+			if (s != null) {
+				this.set(counter, new CustomItemStack(s));
+			} else {
+				this.set(counter, null);
+			}
+			counter++;
+		}
+	}
+
 	private void mergeStackWithInventory(CustomItemStack itemStack) {
 		int stackSizeTemp = itemStack.getAmount();
 
 		for (CustomItemStack stackInFakeInv : this) {
-			if (itemStack.isSimilar(stackInFakeInv)
-					&& stackInFakeInv.getAmount() < stackInFakeInv.getMaxStackSize()) {
+			if (itemStack.isSimilar(stackInFakeInv) && stackInFakeInv.getAmount() < stackInFakeInv.getMaxStackSize()) {
 				if (stackSizeTemp + stackInFakeInv.getAmount() <= stackInFakeInv.getMaxStackSize()) {
 					// passt komplett auf den Stack
 					stackInFakeInv.setAmount(stackSizeTemp + stackInFakeInv.getAmount());
@@ -85,16 +97,9 @@ public class FakeInventory extends ArrayList<CustomItemStack> {
 		}
 	}
 
-	public void setComplete(ItemStack[] itemStacks) {
-		int counter = 0;
-		for (ItemStack s : itemStacks) {
-			if (s != null) {
-				this.set(counter, new CustomItemStack(s));
-			} else {
-				this.set(counter, null);
-			}
-			counter++;
+	private void createEmptyInventory() {
+		for (int i = 0; i < inventorySize; i++) {
+			this.add(null);
 		}
 	}
-
 }

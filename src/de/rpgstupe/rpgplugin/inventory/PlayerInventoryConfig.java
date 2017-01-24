@@ -10,7 +10,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * This class handles the config file <code>inventory_config.yml</code> for the {@link PlayerInventory}
+ * This class handles the config file <code>inventory_config.yml</code> for the
+ * {@link PlayerInventory}
  * 
  * @author RPGAlpacca
  *
@@ -22,6 +23,19 @@ public class PlayerInventoryConfig {
 
 	public PlayerInventoryConfig(JavaPlugin plugin) {
 		loadFiles(plugin);
+	}
+
+	/**
+	 * save the config after ALWAYS writing
+	 * 
+	 * @throws IOException
+	 */
+	public void saveInvConfig() throws IOException {
+		invConfig.save(playerInvConfigFile);
+	}
+
+	public FileConfiguration getInvConfig() {
+		return this.invConfig;
 	}
 
 	private void loadFiles(JavaPlugin plugin) {
@@ -40,18 +54,5 @@ public class PlayerInventoryConfig {
 		} catch (IOException | InvalidConfigurationException e) {
 			Bukkit.getServer().getLogger().info(e.toString());
 		}
-	}
-	
-	/**
-	 * save the config after ALWAYS writing
-	 * 
-	 * @throws IOException
-	 */
-	public void saveInvConfig() throws IOException {
-		invConfig.save(playerInvConfigFile);
-	}
-	
-	public FileConfiguration getInvConfig() {
-		return this.invConfig;
 	}
 }

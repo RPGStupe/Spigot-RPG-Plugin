@@ -38,8 +38,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.Packets;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.ConnectionSide;
 import com.comphenix.protocol.events.ListenerOptions;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -71,7 +73,6 @@ public class Main extends JavaPlugin implements Listener {
 				handleServerPingAsync(event, event.getPacket().getServerPings().read(0));
 			}
 		});
-
 		new PlayerInventory(this);
 	}
 
@@ -306,7 +307,7 @@ public class Main extends JavaPlugin implements Listener {
 		bookMeta.addPage("Hope you enjoy your stay/play!"); // Page 3
 		return writtenBook;
 	}
-	
+
 	public static PlayerWrapper getPlayerWrapperFromUUID(UUID uuid) throws NoSuchPlayerInWrapperListException {
 		for (PlayerWrapper pw : Main.PLAYER_WRAPPER_LIST) {
 			if (pw.getUniqueId().equals(uuid)) {
