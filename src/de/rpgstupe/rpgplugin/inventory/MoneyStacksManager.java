@@ -9,7 +9,7 @@ public class MoneyStacksManager {
 	public static int moneySmallExchangeRate;
 	public static int moneyMediumExchangeRate;
 	public static int moneyLargeMaxAmount;
-	
+
 	public static boolean useDurabilityItems;
 
 	public static String moneySmallItem;
@@ -19,37 +19,41 @@ public class MoneyStacksManager {
 	public static int moneySmallSlot;
 	public static int moneyMediumSlot;
 	public static int moneyLargeSlot;
-	
+
 	private FileConfiguration playerInvConfig;
-	
-	
-	
+
 	public MoneyStacksManager(FileConfiguration playerInvConfig) {
 		this.playerInvConfig = playerInvConfig;
 		loadConfigDataIntoVariables();
 	}
-	
+
 	/**
-	 * This method merges the amount of money given in the parameters using the stacksizes of the config file
+	 * This method merges the amount of money given in the parameters using the
+	 * stacksizes of the config file
 	 * 
-	 * @param pw the player wrapper object of the specific player to merge
-	 * @param small the amount of moneySmall in the inventory
-	 * @param medium the amount of moneyMedium in the inventory
-	 * @param large the amount of moneyLarge in the inventory
+	 * @param pw
+	 *            the player wrapper object of the specific player to merge
+	 * @param small
+	 *            the amount of moneySmall in the inventory
+	 * @param medium
+	 *            the amount of moneyMedium in the inventory
+	 * @param large
+	 *            the amount of moneyLarge in the inventory
 	 */
-	public static void mergeMoneyAndWriteToPlayerWrapper(PlayerWrapper pw, int small, int medium, int large) {
-		int tempSmall = small;
-		int tempMedium = medium;
-		int tempLarge = large;
+	public static void mergeMoneyIntoPlayerWrapper(PlayerWrapper pw, int small, int medium, int large) {
+		int tempSmall = small + pw.getMoneySmallAmount();
+		int tempMedium = medium + pw.getMoneyMediumAmount();
+		int tempLarge = large + pw.getMoneyLargeAmount();
 
 		if (tempSmall >= MoneyStacksManager.moneySmallExchangeRate) {
+			tempMedium += tempSmall / MoneyStacksManager.moneySmallExchangeRate;
 			tempSmall %= MoneyStacksManager.moneySmallExchangeRate;
-			tempMedium += small / MoneyStacksManager.moneySmallExchangeRate;
 		}
 
 		if (tempMedium >= MoneyStacksManager.moneyMediumExchangeRate) {
+			tempLarge += tempMedium / MoneyStacksManager.moneyMediumExchangeRate;
 			tempMedium %= MoneyStacksManager.moneyMediumExchangeRate;
-			tempLarge += medium / MoneyStacksManager.moneyMediumExchangeRate;
+
 		}
 
 		if (tempLarge > MoneyStacksManager.moneyLargeMaxAmount) {
@@ -59,6 +63,11 @@ public class MoneyStacksManager {
 		pw.setMoneySmallAmount(tempSmall);
 		pw.setMoneyMediumAmount(tempMedium);
 		pw.setMoneyLargeAmount(tempLarge);
+
+		System.out.println("\n\nMerged: ");
+		System.out.println(tempSmall);
+		System.out.println(tempMedium);
+		System.out.println(tempLarge);
 	}
 
 	private void loadConfigDataIntoVariables() {
@@ -71,9 +80,9 @@ public class MoneyStacksManager {
 		MoneyStacksManager.moneySmallItem = playerInvConfig.getString("money.items.money_small_item");
 		MoneyStacksManager.moneyMediumItem = playerInvConfig.getString("money.items.money_medium_item");
 		MoneyStacksManager.moneyLargeItem = playerInvConfig.getString("money.items.money_large_item");
-		
-		MoneyStacksManager.moneySmallSlot = playerInvConfig.getInt("money.slots.money_small");
-		MoneyStacksManager.moneyMediumSlot = playerInvConfig.getInt("money.slots.money_medium");
-		MoneyStacksManager.moneyLargeSlot = playerInvConfig.getInt("money.slots.money_large");
+
+		MoneyStacksManager.moneySmallSlot = playerInvConfig.getInt("inventory.slots.money_small");
+		MoneyStacksManager.moneyMediumSlot = playerInvConfig.getInt("inventory.slots.money_medium");
+		MoneyStacksManager.moneyLargeSlot = playerInvConfig.getInt("inventory.slots.money_large");
 	}
 }

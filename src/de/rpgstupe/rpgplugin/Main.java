@@ -38,10 +38,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.Packets;
 import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.ConnectionSide;
 import com.comphenix.protocol.events.ListenerOptions;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
@@ -60,7 +57,6 @@ public class Main extends JavaPlugin implements Listener {
 
 	public static final List<PlayerWrapper> PLAYER_WRAPPER_LIST = new ArrayList<PlayerWrapper>();
 	Inventory myInventory;
-	private ProtocolManager protocolManager;
 
 	@Override
 	public void onEnable() {
@@ -128,7 +124,6 @@ public class Main extends JavaPlugin implements Listener {
 		}, 1L, 1L);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		Player p = (Player) sender;

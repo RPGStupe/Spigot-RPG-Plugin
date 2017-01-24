@@ -3,7 +3,6 @@ package de.rpgstupe.rpgplugin.inventory;
 import org.bukkit.Achievement;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,7 +28,6 @@ import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
 public class PlayerInventory implements Listener {
 
 	private final FileConfiguration playerInvConfig;
-	private final MoneyStacksManager moneyManager;
 
 	public static int moneySmallInvSlot;
 	public static int moneyMediumInvSlot;
@@ -43,7 +41,7 @@ public class PlayerInventory implements Listener {
 		PlayerInventoryConfig pic = new PlayerInventoryConfig(plugin);
 		this.playerInvConfig = pic.getInvConfig();
 		loadConfig();
-		moneyManager = new MoneyStacksManager(playerInvConfig);
+		new MoneyStacksManager(playerInvConfig);
 	}
 
 	/**
@@ -201,7 +199,8 @@ public class PlayerInventory implements Listener {
 
 	/**
 	 * if an item is about to be picked up it is added into the FakeInventory
-	 * and then the drop is removed. The inventory needs to be updated after this
+	 * and then the drop is removed. The inventory needs to be updated after
+	 * this
 	 * 
 	 * @param event
 	 */
@@ -211,8 +210,17 @@ public class PlayerInventory implements Listener {
 		Player p = event.getPlayer();
 		try {
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
-			if (isItemTypeMoney(event.getItem())) {
-				MoneyStacksManager.mergeMoneyAndWriteToPlayerWrapper(pw, MoneyStacksManager.moneySmallItem.equals(event.getItem().getItemStack().getType().name()) ? event.getItem().getItemStack().getAmount() : 0, medium, large);
+			if (isItemTypeMoney(event.getItem().getItemStack())) {
+				//TODO geht nicht vernünftig, wenn das Geld nicht ins Inv passt
+				MoneyStacksManager.mergeMoneyIntoPlayerWrapper(pw,
+						MoneyStacksManager.moneySmallItem.equals(event.getItem().getItemStack().getType().name())
+								? event.getItem().getItemStack().getAmount() : 0,
+						MoneyStacksManager.moneyMediumItem.equals(event.getItem().getItemStack().getType().name())
+								? event.getItem().getItemStack().getAmount() : 0,
+						MoneyStacksManager.moneyLargeItem.equals(event.getItem().getItemStack().getType().name())
+								? event.getItem().getItemStack().getAmount(): 0);
+				pw.setMoneyInFakeInv();
+				event.getItem().remove();
 			} else {
 				if (pw.getFakeInventory()
 						.isCustomItemStackFitInInventory(new CustomItemStack(event.getItem().getItemStack()))) {
@@ -252,10 +260,9 @@ public class PlayerInventory implements Listener {
 		}
 	}
 
-	private boolean isItemTypeMoney(Item item) {
-		String itemName = item.getType().name();
-		if (MoneyStacksManager.moneySmallItem.equals(itemName)
-				|| MoneyStacksManager.moneyMediumItem.equals(itemName)
+	private boolean isItemTypeMoney(ItemStack stack) {
+		String itemName = stack.getType().name();
+		if (MoneyStacksManager.moneySmallItem.equals(itemName) || MoneyStacksManager.moneyMediumItem.equals(itemName)
 				|| MoneyStacksManager.moneyLargeItem.equals(itemName)) {
 			return true;
 		}

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.bukkit.inventory.ItemStack;
 
-import de.rpgstupe.rpgplugin.PlayerWrapper;
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 
 @SuppressWarnings("serial")
@@ -52,6 +51,7 @@ public class FakeInventory extends ArrayList<CustomItemStack> {
 	 * @return
 	 */
 	public boolean isCustomItemStackFitInInventory(CustomItemStack itemStack) {
+		// TODO Money Slots rausnehmen
 		int tempStackSize = itemStack.getAmount();
 
 		for (CustomItemStack i : this) {
@@ -107,26 +107,27 @@ public class FakeInventory extends ArrayList<CustomItemStack> {
 		}
 	}
 
-//	public boolean isMoneyFitInInventory(CustomItemStack customItemStack, PlayerWrapper pw) {
-//		int tempStackSize = customItemStack.getAmount();
-//		String itemName = customItemStack.getType().name();
-//		if (MoneyStacksManager.moneySmallItem.equals(itemName)) {
-//			if (pw.getMoneySmallAmount() + customItemStack.getAmount() <= )
-//		} else if (MoneyStacksManager.moneyMediumItem.equals(itemName)) {
-//
-//		} else if (MoneyStacksManager.moneyLargeItem.equals(itemName)) {
-//
-//		}
-//
-//		for (CustomItemStack i : this) {
-//			if (i == null) {
-//				tempStackSize -= customItemStack.getMaxStackSize();
-//			} else if (i.isSimilar(customItemStack)) {
-//				if (i.getAmount() < i.getMaxStackSize()) {
-//					tempStackSize -= i.getMaxStackSize() - i.getAmount();
-//				}
-//			}
-//		}
-//		return tempStackSize <= 0 ? true : false;
-//	}
+	// public boolean isMoneyFitInInventory(CustomItemStack customItemStack,
+	// PlayerWrapper pw) {
+	// int tempStackSize = customItemStack.getAmount();
+	// String itemName = customItemStack.getType().name();
+	// if (MoneyStacksManager.moneySmallItem.equals(itemName)) {
+	// if (pw.getMoneySmallAmount() + customItemStack.getAmount() <= )
+	// } else if (MoneyStacksManager.moneyMediumItem.equals(itemName)) {
+	//
+	// } else if (MoneyStacksManager.moneyLargeItem.equals(itemName)) {
+	//
+	// }
+	//
+	// for (CustomItemStack i : this) {
+	// if (i == null) {
+	// tempStackSize -= customItemStack.getMaxStackSize();
+	// } else if (i.isSimilar(customItemStack)) {
+	// if (i.getAmount() < i.getMaxStackSize()) {
+	// tempStackSize -= i.getMaxStackSize() - i.getAmount();
+	// }
+	// }
+	// }
+	// return tempStackSize <= 0 ? true : false;
+	// }
 }
