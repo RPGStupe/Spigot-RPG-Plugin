@@ -22,7 +22,8 @@ public class PlayerWrapper {
 	private int moneyLargeAmount;
 
 	private boolean isInventoryOpen = false;
-
+	
+	@Embedded
 	private FakeInventory fakeInventory;
 
 	// Constructor to pass on the player object
