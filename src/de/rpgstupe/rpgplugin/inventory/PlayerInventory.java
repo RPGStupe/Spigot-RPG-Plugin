@@ -196,7 +196,7 @@ public class PlayerInventory implements Listener {
 			pe.moneySmallAmount = pw.getMoneySmallAmount();
 			pe.moneyMediumAmount = pw.getMoneyMediumAmount();
 			pe.moneyLargeAmount = pw.getMoneyLargeAmount();
-			pe.fakeInv = pw.getFakeInventory();
+			pe.fakeInv = pw.invToArray();
 			Main.getDbHandler().savePlayerEntity(pe);
 			System.out.println("Removing Player");
 			Main.PLAYER_WRAPPER_LIST.remove(
@@ -231,12 +231,14 @@ public class PlayerInventory implements Listener {
 				pw.setMoneyInFakeInv();
 				event.getItem().remove();
 			} else {
+				CustomItemStack cStack = new CustomItemStack();
+				cStack.setItemStack(event.getItem().getItemStack());
 				if (pw.getFakeInventory()
-						.isCustomItemStackFitInInventory(new CustomItemStack(event.getItem().getItemStack()))) {
+						.isCustomItemStackFitInInventory(cStack)) {
 					event.getItem().remove();
 					// TODO Tonlage fixen
 					event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5F, 1.2F);
-					pw.getFakeInventory().addCustomItemStack(new CustomItemStack(event.getItem().getItemStack()));
+					pw.getFakeInventory().addCustomItemStack(cStack);
 
 					// update whole inventory if open, otherwise only the hotbar
 					if (pw.isInventoryOpen()) {

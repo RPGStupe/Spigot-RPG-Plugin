@@ -1,16 +1,22 @@
 package de.rpgstupe.rpgplugin.inventory;
 
-import java.util.ArrayList;
-
 import org.bukkit.inventory.ItemStack;
 import org.mongodb.morphia.annotations.Embedded;
 
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 
 @SuppressWarnings("serial")
-@Embedded
-public class FakeInventory extends ArrayList<CustomItemStack> {
+public class FakeInventory {
+	public CustomItemStack[] getFakeInventoryArray() {
+		return fakeInventoryArray;
+	}
+
+	public void setFakeInventoryArray(CustomItemStack[] fakeInventoryArray) {
+		this.fakeInventoryArray = fakeInventoryArray;
+	}
+
 	private int inventorySize;
+	private CustomItemStack[] fakeInventoryArray;
 
 	/**
 	 * this is an exact copy of the Player Ingame Inventory. It makes it easier
@@ -23,6 +29,7 @@ public class FakeInventory extends ArrayList<CustomItemStack> {
 	 */
 	public FakeInventory(int inventorySize) {
 		this.inventorySize = inventorySize;
+		fakeInventoryArray = new CustomItemStack[this.inventorySize];
 		createEmptyInventory();
 	}
 
@@ -54,14 +61,14 @@ public class FakeInventory extends ArrayList<CustomItemStack> {
 	 */
 	public boolean isCustomItemStackFitInInventory(CustomItemStack itemStack) {
 		// TODO Money Slots rausnehmen
-		int tempStackSize = itemStack.getAmount();
+		int tempStackSize = itemStack.getItemStack().getAmount();
 
-		for (CustomItemStack i : this) {
+		for (CustomItemStack i : fakeInventoryArray) {
 			if (i == null) {
-				tempStackSize -= itemStack.getMaxStackSize();
-			} else if (i.isSimilar(itemStack)) {
-				if (i.getAmount() < i.getMaxStackSize()) {
-					tempStackSize -= i.getMaxStackSize() - i.getAmount();
+				tempStackSize -= itemStack.getItemStack().getMaxStackSize();
+			} else if (i.getItemStack().isSimilar(itemStack.getItemStack())) {
+				if (i.getItemStack().getAmount() < i.getItemStack().getMaxStackSize()) {
+					tempStackSize -= i.getItemStack().getMaxStackSize() - i.getItemStack().getAmount();
 				}
 			}
 		}
@@ -72,42 +79,55 @@ public class FakeInventory extends ArrayList<CustomItemStack> {
 		int counter = 0;
 		for (ItemStack s : itemStacks) {
 			if (s != null) {
-				this.set(counter, new CustomItemStack(s));
-			} else {
-				this.set(counter, null);
+				CustomItemStack cStack = new CustomItemStack();
+				cStack.setItemStack(s);
+				fakeInventoryArray[counter] = cStack;
 			}
 			counter++;
 		}
 	}
 
 	private void mergeStackWithInventory(CustomItemStack itemStack) {
-		int stackSizeTemp = itemStack.getAmount();
+		int stackSizeTemp = itemStack.getItemStack().getAmount();
 
-		for (CustomItemStack stackInFakeInv : this) {
-			if (itemStack.isSimilar(stackInFakeInv) && stackInFakeInv.getAmount() < stackInFakeInv.getMaxStackSize()) {
-				if (stackSizeTemp + stackInFakeInv.getAmount() <= stackInFakeInv.getMaxStackSize()) {
+		for (CustomItemStack stackInFakeInv : fakeInventoryArray) {
+			if (itemStack.getItemStack().isSimilar(stackInFakeInv.getItemStack()) && stackInFakeInv.getItemStack().getAmount() < stackInFakeInv.getItemStack().getMaxStackSize()) {
+				if (stackSizeTemp + stackInFakeInv.getItemStack().getAmount() <= stackInFakeInv.getItemStack().getMaxStackSize()) {
 					// passt komplett auf den Stack
-					stackInFakeInv.setAmount(stackSizeTemp + stackInFakeInv.getAmount());
+					stackInFakeInv.getItemStack().setAmount(stackSizeTemp + stackInFakeInv.getItemStack().getAmount());
 					stackSizeTemp = 0;
 					break;
 				} else {
-					stackSizeTemp = (stackInFakeInv.getAmount() + stackSizeTemp) % stackInFakeInv.getMaxStackSize();
-					stackInFakeInv.setAmount(stackInFakeInv.getMaxStackSize());
+					stackSizeTemp = (stackInFakeInv.getItemStack().getAmount() + stackSizeTemp) % stackInFakeInv.getItemStack().getMaxStackSize();
+					stackInFakeInv.getItemStack().setAmount(stackInFakeInv.getItemStack().getMaxStackSize());
 				}
 			}
 		}
 		if (stackSizeTemp > 0) {
-			CustomItemStack tempStack = new CustomItemStack(itemStack);
-			tempStack.setAmount(stackSizeTemp);
-			this.set(this.indexOf(null), tempStack);
+			CustomItemStack tempStack = new CustomItemStack();
+			tempStack.setItemStack(itemStack.getItemStack());
+			tempStack.getItemStack().setAmount(stackSizeTemp);
+			fakeInventoryArray[indexOf(null)] = tempStack;
 		}
+	}
+	
+	public int indexOf(CustomItemStack cStack) {
+		for (int i = 0; i < inventorySize; i++) {
+			if (fakeInventoryArray[i].equals(null)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	private void createEmptyInventory() {
 		for (int i = 0; i < inventorySize; i++) {
-			this.add(null);
+			fakeInventoryArray[i] = new CustomItemStack();
+			fakeInventoryArray[i].setItemStack(null);
 		}
 	}
+	
+	
 
 	// public boolean isMoneyFitInInventory(CustomItemStack customItemStack,
 	// PlayerWrapper pw) {

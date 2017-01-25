@@ -7,11 +7,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.mongodb.morphia.annotations.Embedded;
 
+import de.rpgstupe.rpgplugin.database.entities.CustomItemStackEntity;
 import de.rpgstupe.rpgplugin.inventory.CustomItemStack;
 import de.rpgstupe.rpgplugin.inventory.FakeInventory;
 import de.rpgstupe.rpgplugin.inventory.MoneyStacksManager;
 
-@Embedded
 public class PlayerWrapper {
 
 	// Create a variable to store the player
@@ -39,11 +39,11 @@ public class PlayerWrapper {
 
 	public PlayerWrapper(Player player, int moneySmallAmount, int moneyMediumAmount, int moneyLargeAmount) {
 		this.player = player;
-		
+
 		this.moneySmallAmount = moneySmallAmount;
 		this.moneyMediumAmount = moneyMediumAmount;
 		this.moneyLargeAmount = moneyLargeAmount;
-		
+
 		this.fakeInventory = new FakeInventory(41);
 	}
 
@@ -86,36 +86,43 @@ public class PlayerWrapper {
 
 	public void setMoneyInFakeInv() {
 
-		this.getFakeInventory().set(MoneyStacksManager.moneySmallSlot, new CustomItemStack(
-				new ItemStack(Material.getMaterial(MoneyStacksManager.moneySmallItem), this.moneySmallAmount)));
-		System.out.println(
-				"Added " + this.moneySmallAmount + " small Money to slot " + MoneyStacksManager.moneySmallSlot);
-		this.getFakeInventory().set(MoneyStacksManager.moneyMediumSlot, new CustomItemStack(
-				new ItemStack(Material.getMaterial(MoneyStacksManager.moneyMediumItem), this.moneyMediumAmount)));
-		System.out.println(
-				"Added " + this.moneyMediumAmount + " small Money to slot " + MoneyStacksManager.moneyMediumSlot);
+		CustomItemStack cStackMoneySmall = new CustomItemStack();
+		CustomItemStack cStackMoneyMedium = new CustomItemStack();
+		CustomItemStack cStackMoneyLarge = new CustomItemStack();
 
-		this.getFakeInventory().set(MoneyStacksManager.moneyLargeSlot, new CustomItemStack(
-				new ItemStack(Material.getMaterial(MoneyStacksManager.moneyLargeItem), this.moneyLargeAmount)));
-		System.out.println(
-				"Added " + this.moneyLargeAmount + " small Money to slot " + MoneyStacksManager.moneyLargeSlot);
+		cStackMoneySmall.setItemStack(
+				new ItemStack(Material.getMaterial(MoneyStacksManager.moneySmallItem), this.moneySmallAmount));
+		cStackMoneyMedium.setItemStack(
+				new ItemStack(Material.getMaterial(MoneyStacksManager.moneyMediumItem), this.moneyMediumAmount));
+		cStackMoneyLarge.setItemStack(
+				new ItemStack(Material.getMaterial(MoneyStacksManager.moneyLargeItem), this.moneyLargeAmount));
+
+		this.getFakeInventory().getFakeInventoryArray()[MoneyStacksManager.moneySmallSlot] = cStackMoneySmall;
+		this.getFakeInventory().getFakeInventoryArray()[MoneyStacksManager.moneyMediumSlot] = cStackMoneyMedium;
+		this.getFakeInventory().getFakeInventoryArray()[MoneyStacksManager.moneyLargeSlot] = cStackMoneyLarge;
 	}
-	
+
 	public void updatePlayerInventory(int fromId, int toId) {
 		for (int i = fromId; i < toId; i++) {
-			if (getFakeInventory().get(i) != null) {
-				player.getInventory().setItem(i, new ItemStack(getFakeInventory().get(i)));
-			} else {
-				player.getInventory().setItem(i, null);
-			}
+			player.getInventory().setItem(i, getFakeInventory().getFakeInventoryArray()[i].getItemStack() == null ? null : getFakeInventory().getFakeInventoryArray()[i].getItemStack());
 		}
 	}
-	
+
 	public boolean isInventoryOpen() {
 		return isInventoryOpen;
 	}
 
 	public void setInventoryOpen(boolean isInventoryOpen) {
 		this.isInventoryOpen = isInventoryOpen;
+	}
+
+	public CustomItemStackEntity[] invToArray() {
+		CustomItemStackEntity[] stackArrayEntity = new CustomItemStackEntity[this.getFakeInventory().getFakeInventoryArray().length];
+		for (int i = 0; i < this.getFakeInventory().getFakeInventoryArray().length; i++) {
+			CustomItemStackEntity tempStackEntity = new CustomItemStackEntity();
+			tempStackEntity.stack = this.getFakeInventory().getFakeInventoryArray()[i].getItemStack() != null ? new ItemStack(this.getFakeInventory().getFakeInventoryArray()[i].getItemStack()) : null;
+			stackArrayEntity[i] = tempStackEntity;
+		}
+		return stackArrayEntity;
 	}
 }

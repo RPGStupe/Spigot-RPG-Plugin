@@ -1,31 +1,35 @@
 package de.rpgstupe.rpgplugin.inventory;
 
-import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 
-public class CustomItemStack extends ItemStack {
-
-	public CustomItemStack(ItemStack itemStack) {
-		super(itemStack);
+public class CustomItemStack {
+	
+	private ItemStack itemStack;
+	
+	public CustomItemStack() {
+		this.itemStack = null;
 	}
-
-	public CustomItemStack(Item item) {
-		super(new CustomItemStack(new ItemStack(item.getItemStack().getType())));
-	}
-
-	@Override
-	public int getMaxStackSize() {
+	
+	public int getMaxStackSize(ItemStack stack) {
 		int stackSize;
-		if (MoneyStacksManager.moneySmallItem.equals(this.getType().name())) {
+		if (MoneyStacksManager.moneySmallItem.equals(stack.getType().name())) {
 			stackSize = MoneyStacksManager.moneySmallExchangeRate;
-		} else if (MoneyStacksManager.moneyMediumItem.equals(this.getType().name())) {
+		} else if (MoneyStacksManager.moneyMediumItem.equals(stack.getType().name())) {
 			stackSize = MoneyStacksManager.moneyMediumExchangeRate;
-		} else if (MoneyStacksManager.moneyLargeItem.equals(this.getType().name())) {
+		} else if (MoneyStacksManager.moneyLargeItem.equals(stack.getType().name())) {
 			stackSize = MoneyStacksManager.moneyLargeMaxAmount;
 		} else {
-			stackSize = super.getMaxStackSize();
+			stackSize = stack.getMaxStackSize();
 		}
  		return stackSize;
 	}
 
+	public ItemStack getItemStack() {
+		return itemStack;
+	}
+
+	public void setItemStack(ItemStack itemStack) {
+		this.itemStack = itemStack;
+	}
+	
 }

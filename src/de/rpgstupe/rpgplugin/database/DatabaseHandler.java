@@ -1,7 +1,5 @@
 package de.rpgstupe.rpgplugin.database;
 
-import java.util.List;
-
 import org.bukkit.entity.Player;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -9,6 +7,7 @@ import org.mongodb.morphia.Morphia;
 import com.mongodb.MongoClient;
 
 import de.rpgstupe.rpgplugin.database.daos.PlayerDAO;
+import de.rpgstupe.rpgplugin.database.entities.CustomItemStackEntity;
 import de.rpgstupe.rpgplugin.database.entities.PlayerEntity;
 
 public class DatabaseHandler {
@@ -23,6 +22,7 @@ public class DatabaseHandler {
 		morphia = new Morphia();
 
 		morphia.map(PlayerEntity.class);
+		morphia.map(CustomItemStackEntity.class);
 
 		datastore = morphia.createDatastore(mc, "dbPlayers");
 		datastore.ensureIndexes();
@@ -48,13 +48,7 @@ public class DatabaseHandler {
 	}
 
 	public PlayerEntity getPlayerEntityByPlayer(Player p) {
-		System.out.println("PLayer db size: "  + getAllPlayers().size());
 		return playerDAO.findOne("uuid", p.getUniqueId().toString());
 	}
-	
-	public List<PlayerEntity> getAllPlayers()
-    {
-        return playerDAO.find().asList();
-    }
 
 }
