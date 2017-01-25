@@ -5,20 +5,14 @@ import java.util.UUID;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.mongodb.morphia.annotations.Embedded;
 
 import de.rpgstupe.rpgplugin.inventory.CustomItemStack;
 import de.rpgstupe.rpgplugin.inventory.FakeInventory;
 import de.rpgstupe.rpgplugin.inventory.MoneyStacksManager;
 
+@Embedded
 public class PlayerWrapper {
-
-	public boolean isInventoryOpen() {
-		return isInventoryOpen;
-	}
-
-	public void setInventoryOpen(boolean isInventoryOpen) {
-		this.isInventoryOpen = isInventoryOpen;
-	}
 
 	// Create a variable to store the player
 	private Player player;
@@ -36,10 +30,20 @@ public class PlayerWrapper {
 		// Store the player object
 		this.player = player;
 
+		this.moneySmallAmount = 0;
+		this.moneyMediumAmount = 0;
+		this.moneyLargeAmount = 0;
+
+		this.fakeInventory = new FakeInventory(41);
+	}
+
+	public PlayerWrapper(Player player, int moneySmallAmount, int moneyMediumAmount, int moneyLargeAmount) {
+		this.player = player;
+		
 		this.moneySmallAmount = moneySmallAmount;
 		this.moneyMediumAmount = moneyMediumAmount;
 		this.moneyLargeAmount = moneyLargeAmount;
-
+		
 		this.fakeInventory = new FakeInventory(41);
 	}
 
@@ -95,5 +99,23 @@ public class PlayerWrapper {
 				new ItemStack(Material.getMaterial(MoneyStacksManager.moneyLargeItem), this.moneyLargeAmount)));
 		System.out.println(
 				"Added " + this.moneyLargeAmount + " small Money to slot " + MoneyStacksManager.moneyLargeSlot);
+	}
+	
+	public void updatePlayerInventory(int fromId, int toId) {
+		for (int i = fromId; i < toId; i++) {
+			if (getFakeInventory().get(i) != null) {
+				player.getInventory().setItem(i, new ItemStack(getFakeInventory().get(i)));
+			} else {
+				player.getInventory().setItem(i, null);
+			}
+		}
+	}
+	
+	public boolean isInventoryOpen() {
+		return isInventoryOpen;
+	}
+
+	public void setInventoryOpen(boolean isInventoryOpen) {
+		this.isInventoryOpen = isInventoryOpen;
 	}
 }

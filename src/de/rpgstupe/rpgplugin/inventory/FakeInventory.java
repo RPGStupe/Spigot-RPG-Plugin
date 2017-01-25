@@ -3,10 +3,12 @@ package de.rpgstupe.rpgplugin.inventory;
 import java.util.ArrayList;
 
 import org.bukkit.inventory.ItemStack;
+import org.mongodb.morphia.annotations.Embedded;
 
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 
 @SuppressWarnings("serial")
+@Embedded
 public class FakeInventory extends ArrayList<CustomItemStack> {
 	private int inventorySize;
 

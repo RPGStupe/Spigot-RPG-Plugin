@@ -29,6 +29,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -47,6 +48,9 @@ import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.comphenix.protocol.wrappers.WrappedServerPing;
 
 import de.rpgstupe.rpgplugin.customentities.CustomVillager;
+import de.rpgstupe.rpgplugin.database.DatabaseHandler;
+import de.rpgstupe.rpgplugin.database.daos.PlayerDAO;
+import de.rpgstupe.rpgplugin.database.entities.PlayerEntity;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
 import de.rpgstupe.rpgplugin.inventory.PlayerInventory;
 import de.rpgstupe.rpgplugin.util.BookUtil;
@@ -57,9 +61,12 @@ public class Main extends JavaPlugin implements Listener {
 
 	public static final List<PlayerWrapper> PLAYER_WRAPPER_LIST = new ArrayList<PlayerWrapper>();
 	Inventory myInventory;
+	private static DatabaseHandler dbHandler;
 
 	@Override
 	public void onEnable() {
+		dbHandler = new DatabaseHandler();
+
 		NMSUtil.registerCustomEntity(120, "villager", CustomVillager.class);
 		getServer().getPluginManager().registerEvents(this, this);
 		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL,
@@ -84,44 +91,60 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent e) {
-		ItemStack[] itemStack = e.getPlayer().getInventory().getContents();
-		int emeralds = 0;
-		for (int i = 0; i < itemStack.length; i++) {
-			if (itemStack[i] != null) {
-				if (itemStack[i].getType().equals(Material.EMERALD)) {
-					emeralds += itemStack[i].getAmount();
-				}
-			}
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		System.out.println("Main onJoin");
+		PlayerEntity pe = dbHandler.getPlayerEntityByPlayer(event.getPlayer());
+		if (pe != null) {
+			System.out.println("Added Player with UUID " + event.getPlayer().getUniqueId() + " to List");
+			PLAYER_WRAPPER_LIST.add(new PlayerWrapper(event.getPlayer(), pe.moneySmallAmount, pe.moneyMediumAmount, pe.moneyLargeAmount));
+		} else {
+			Main.PLAYER_WRAPPER_LIST.add(new PlayerWrapper(event.getPlayer()));
+			System.out.println("NEW: Added Player with UUID " + event.getPlayer().getUniqueId() + " to List");
 		}
 
-		e.getPlayer().getInventory().setItem(6, new ItemStack(Material.EMERALD, emeralds));
-
-		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-
-			@Override
-			public void run() {
-				// Block b = e.getPlayer().getTargetBlock((Set<Material>) null,
-				// 5);
-				// Collection<Entity> lookEntities =
-				// e.getPlayer().getWorld().getNearbyEntities(b.getLocation(),
-				// 1.5, 2,
-				// 1.5);
-				// for (Entity entity : lookEntities) {
-				// if (entity.getType() == EntityType.ARMOR_STAND) {
-				// entity.setCustomNameVisible(true);
-				// Collection<Entity> entities = entity.getNearbyEntities(10, 2,
-				// 10);
-				// for (Entity entity2 : entities) {
-				// if (entity2.getType() == EntityType.ARMOR_STAND) {
-				// entity2.setCustomNameVisible(false);
-				// }
-				// }
-				// }
-				// }
-			}
-
-		}, 1L, 1L);
+		try {
+			Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId()).updatePlayerInventory(0, event.getPlayer().getInventory().getContents().length);
+		} catch (NoSuchPlayerInWrapperListException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		ItemStack[] itemStack = e.getPlayer().getInventory().getContents();
+//		int emeralds = 0;
+//		for (int i = 0; i < itemStack.length; i++) {
+//			if (itemStack[i] != null) {
+//				if (itemStack[i].getType().equals(Material.EMERALD)) {
+//					emeralds += itemStack[i].getAmount();
+//				}
+//			}
+//		}
+//
+//		e.getPlayer().getInventory().setItem(6, new ItemStack(Material.EMERALD, emeralds));
+//
+//		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				// Block b = e.getPlayer().getTargetBlock((Set<Material>) null,
+//				// 5);
+//				// Collection<Entity> lookEntities =
+//				// e.getPlayer().getWorld().getNearbyEntities(b.getLocation(),
+//				// 1.5, 2,
+//				// 1.5);
+//				// for (Entity entity : lookEntities) {
+//				// if (entity.getType() == EntityType.ARMOR_STAND) {
+//				// entity.setCustomNameVisible(true);
+//				// Collection<Entity> entities = entity.getNearbyEntities(10, 2,
+//				// 10);
+//				// for (Entity entity2 : entities) {
+//				// if (entity2.getType() == EntityType.ARMOR_STAND) {
+//				// entity2.setCustomNameVisible(false);
+//				// }
+//				// }
+//				// }
+//				// }
+//			}
+//
+//		}, 1L, 1L);
 	}
 
 	@Override
@@ -304,12 +327,17 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public static PlayerWrapper getPlayerWrapperFromUUID(UUID uuid) throws NoSuchPlayerInWrapperListException {
+		System.out.println(PLAYER_WRAPPER_LIST.size());
 		for (PlayerWrapper pw : Main.PLAYER_WRAPPER_LIST) {
-			if (pw.getUniqueId().equals(uuid)) {
+			if (pw != null && uuid.equals(pw.getUniqueId())) {
 				return pw;
 			}
 		}
 		throw new NoSuchPlayerInWrapperListException();
+	}
+
+	public static DatabaseHandler getDbHandler() {
+		return dbHandler;
 	}
 
 }

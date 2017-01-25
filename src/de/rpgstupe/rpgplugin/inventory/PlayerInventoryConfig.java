@@ -26,7 +26,7 @@ public class PlayerInventoryConfig {
 	}
 
 	/**
-	 * save the config after ALWAYS writing
+	 * ALWAYS save the config after writing
 	 * 
 	 * @throws IOException
 	 */

@@ -8,6 +8,8 @@
 			</fileset>
 			<fileset file="plugin.yml">
 			</fileset>
+			<fileset file="jars/mongo-java-driver-3.4.1.jar">
+			</fileset>
 		</jar>
 	</target>
 </project>

@@ -22,8 +22,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import de.rpgstupe.rpgplugin.Main;
 import de.rpgstupe.rpgplugin.PlayerWrapper;
+import de.rpgstupe.rpgplugin.database.entities.PlayerEntity;
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
+import net.minecraft.server.v1_11_R1.PlayerConnectionUtils;
 
 public class PlayerInventory implements Listener {
 
@@ -60,7 +62,7 @@ public class PlayerInventory implements Listener {
 			try {
 				PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
 				pw.setInventoryOpen(true);
-				updatePlayerInventory(p, pw, 0, p.getInventory().getContents().length);
+				pw.updatePlayerInventory(0, p.getInventory().getContents().length);
 			} catch (NoSuchPlayerInWrapperListException e) {
 				e.printStackTrace();
 			}
@@ -140,9 +142,6 @@ public class PlayerInventory implements Listener {
 
 		p.removeAchievement(Achievement.OPEN_INVENTORY);
 
-		PlayerWrapper pw = new PlayerWrapper(event.getPlayer());
-		Main.PLAYER_WRAPPER_LIST.add(pw);
-
 		// Inventory inv = p.getInventory();
 		// ItemStack[] playerContents = inv.getContents();
 		//
@@ -190,6 +189,16 @@ public class PlayerInventory implements Listener {
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		try {
+			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
+			PlayerEntity pe = new PlayerEntity();
+			pe.ip = event.getPlayer().getAddress().getHostName();
+			pe.uuid = event.getPlayer().getUniqueId().toString();
+			pe.moneySmallAmount = pw.getMoneySmallAmount();
+			pe.moneyMediumAmount = pw.getMoneyMediumAmount();
+			pe.moneyLargeAmount = pw.getMoneyLargeAmount();
+			pe.fakeInv = pw.getFakeInventory();
+			Main.getDbHandler().savePlayerEntity(pe);
+			System.out.println("Removing Player");
 			Main.PLAYER_WRAPPER_LIST.remove(
 					Main.PLAYER_WRAPPER_LIST.indexOf(Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId())));
 		} catch (NoSuchPlayerInWrapperListException e) {
@@ -231,9 +240,9 @@ public class PlayerInventory implements Listener {
 
 					// update whole inventory if open, otherwise only the hotbar
 					if (pw.isInventoryOpen()) {
-						updatePlayerInventory(p, pw, 0, p.getInventory().getContents().length);
+						pw.updatePlayerInventory(0, p.getInventory().getContents().length);
 					} else {
-						updatePlayerInventory(p, pw, 0, 8);
+						pw.updatePlayerInventory(0, 8);
 					}
 				}
 			}
@@ -273,16 +282,6 @@ public class PlayerInventory implements Listener {
 		Inventory inv = p.getInventory();
 		for (int i = fromId; i <= toId; i++) {
 			inv.setItem(i, null);
-		}
-	}
-
-	private void updatePlayerInventory(Player p, PlayerWrapper pw, int fromId, int toId) {
-		for (int i = fromId; i < toId; i++) {
-			if (pw.getFakeInventory().get(i) != null) {
-				p.getInventory().setItem(i, new ItemStack(pw.getFakeInventory().get(i)));
-			} else {
-				p.getInventory().setItem(i, null);
-			}
 		}
 	}
 
