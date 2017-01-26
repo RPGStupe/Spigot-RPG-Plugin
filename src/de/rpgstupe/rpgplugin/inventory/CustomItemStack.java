@@ -12,12 +12,12 @@ public class CustomItemStack {
 	
 	public int getMaxStackSize(ItemStack stack) {
 		int stackSize;
-		if (MoneyStacksManager.moneySmallItem.equals(stack.getType().name())) {
-			stackSize = MoneyStacksManager.moneySmallExchangeRate;
-		} else if (MoneyStacksManager.moneyMediumItem.equals(stack.getType().name())) {
-			stackSize = MoneyStacksManager.moneyMediumExchangeRate;
-		} else if (MoneyStacksManager.moneyLargeItem.equals(stack.getType().name())) {
-			stackSize = MoneyStacksManager.moneyLargeMaxAmount;
+		if (MoneyStacksHandler.moneySmallItem.equals(stack.getType().name())) {
+			stackSize = MoneyStacksHandler.moneySmallExchangeRate;
+		} else if (MoneyStacksHandler.moneyMediumItem.equals(stack.getType().name())) {
+			stackSize = MoneyStacksHandler.moneyMediumExchangeRate;
+		} else if (MoneyStacksHandler.moneyLargeItem.equals(stack.getType().name())) {
+			stackSize = MoneyStacksHandler.moneyLargeMaxAmount;
 		} else {
 			stackSize = stack.getMaxStackSize();
 		}

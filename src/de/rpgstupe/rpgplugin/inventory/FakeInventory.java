@@ -26,7 +26,6 @@ public class FakeInventory {
 	 *            for players)
 	 */
 	public FakeInventory(int inventorySize) {
-		System.out.println("\n\n\nNEW FAKEINV\n\n\n");
 		this.inventorySize = inventorySize;
 		fakeInventoryArray = new CustomItemStack[this.inventorySize];
 		createEmptyInventory();
@@ -45,13 +44,10 @@ public class FakeInventory {
 	public boolean addCustomItemStack(CustomItemStack itemStack) throws ItemDoesNotFitException {
 		if (isCustomItemStackFitInInventory(itemStack)) {
 			mergeStackWithInventory(itemStack);
-
-			System.out.println("addCustomItemStack" + toString());
-			return true;
 		} else {
 			throw new ItemDoesNotFitException();
 		}
-
+		return true;
 	}
 
 	/**
@@ -100,7 +96,6 @@ public class FakeInventory {
 					&& stackInFakeInv.getItemStack().getAmount() < stackInFakeInv.getItemStack().getMaxStackSize()) {
 				if (stackSizeTemp + stackInFakeInv.getItemStack().getAmount() <= stackInFakeInv.getItemStack()
 						.getMaxStackSize()) {
-					// passt komplett auf den Stack
 					stackInFakeInv.getItemStack().setAmount(stackSizeTemp + stackInFakeInv.getItemStack().getAmount());
 					stackSizeTemp = 0;
 					break;
@@ -145,28 +140,4 @@ public class FakeInventory {
 		}
 		return s;
 	}
-
-	// public boolean isMoneyFitInInventory(CustomItemStack customItemStack,
-	// PlayerWrapper pw) {
-	// int tempStackSize = customItemStack.getAmount();
-	// String itemName = customItemStack.getType().name();
-	// if (MoneyStacksManager.moneySmallItem.equals(itemName)) {
-	// if (pw.getMoneySmallAmount() + customItemStack.getAmount() <= )
-	// } else if (MoneyStacksManager.moneyMediumItem.equals(itemName)) {
-	//
-	// } else if (MoneyStacksManager.moneyLargeItem.equals(itemName)) {
-	//
-	// }
-	//
-	// for (CustomItemStack i : this) {
-	// if (i == null) {
-	// tempStackSize -= customItemStack.getMaxStackSize();
-	// } else if (i.isSimilar(customItemStack)) {
-	// if (i.getAmount() < i.getMaxStackSize()) {
-	// tempStackSize -= i.getMaxStackSize() - i.getAmount();
-	// }
-	// }
-	// }
-	// return tempStackSize <= 0 ? true : false;
-	// }
 }

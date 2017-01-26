@@ -9,9 +9,10 @@ import org.bukkit.material.MaterialData;
 
 import de.rpgstupe.rpgplugin.database.entities.CustomItemStackEntity;
 import de.rpgstupe.rpgplugin.database.entities.DataEntity;
+import de.rpgstupe.rpgplugin.database.entities.ItemMetaEntity;
 import de.rpgstupe.rpgplugin.inventory.CustomItemStack;
 import de.rpgstupe.rpgplugin.inventory.FakeInventory;
-import de.rpgstupe.rpgplugin.inventory.MoneyStacksManager;
+import de.rpgstupe.rpgplugin.inventory.MoneyStacksHandler;
 
 public class PlayerWrapper {
 
@@ -105,15 +106,15 @@ public class PlayerWrapper {
 		CustomItemStack cStackMoneyLarge = new CustomItemStack();
 
 		cStackMoneySmall.setItemStack(
-				new ItemStack(Material.getMaterial(MoneyStacksManager.moneySmallItem), this.moneySmallAmount));
+				new ItemStack(Material.getMaterial(MoneyStacksHandler.moneySmallItem), this.moneySmallAmount));
 		cStackMoneyMedium.setItemStack(
-				new ItemStack(Material.getMaterial(MoneyStacksManager.moneyMediumItem), this.moneyMediumAmount));
+				new ItemStack(Material.getMaterial(MoneyStacksHandler.moneyMediumItem), this.moneyMediumAmount));
 		cStackMoneyLarge.setItemStack(
-				new ItemStack(Material.getMaterial(MoneyStacksManager.moneyLargeItem), this.moneyLargeAmount));
+				new ItemStack(Material.getMaterial(MoneyStacksHandler.moneyLargeItem), this.moneyLargeAmount));
 
-		this.getFakeInventory().getFakeInventoryArray()[MoneyStacksManager.moneySmallSlot] = cStackMoneySmall;
-		this.getFakeInventory().getFakeInventoryArray()[MoneyStacksManager.moneyMediumSlot] = cStackMoneyMedium;
-		this.getFakeInventory().getFakeInventoryArray()[MoneyStacksManager.moneyLargeSlot] = cStackMoneyLarge;
+		this.getFakeInventory().getFakeInventoryArray()[MoneyStacksHandler.moneySmallSlot] = cStackMoneySmall;
+		this.getFakeInventory().getFakeInventoryArray()[MoneyStacksHandler.moneyMediumSlot] = cStackMoneyMedium;
+		this.getFakeInventory().getFakeInventoryArray()[MoneyStacksHandler.moneyLargeSlot] = cStackMoneyLarge;
 	}
 
 	public void updatePlayerInventory(int fromId, int toId) {
@@ -153,20 +154,6 @@ public class PlayerWrapper {
 		if (itemStack == null) {
 			return null;
 		}
-		CustomItemStackEntity tempStackEntity = new CustomItemStackEntity();
-		tempStackEntity.amount = itemStack.getAmount();
-		DataEntity de;
-		if (itemStack.getData() == null) {
-			tempStackEntity.data = null;
-		} else {
-			de = new DataEntity();
-			de.type = itemStack.getData().getItemType();
-			tempStackEntity.data = de;
-		}
-		tempStackEntity.durability = itemStack.getDurability();
-		tempStackEntity.type = itemStack.getType();
-		
-		
-		return tempStackEntity;
+		return new CustomItemStackEntity(itemStack.getType(), itemStack.getAmount(), new DataEntity(itemStack.getData() == null ? null : itemStack.getData().getItemType()), itemStack.getDurability(), new ItemMetaEntity());
 	}
 }

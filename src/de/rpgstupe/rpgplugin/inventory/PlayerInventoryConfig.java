@@ -11,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * This class handles the config file <code>inventory_config.yml</code> for the
- * {@link PlayerInventory}
+ * {@link PlayerInventoryHandler}
  * 
  * @author RPGAlpacca
  *

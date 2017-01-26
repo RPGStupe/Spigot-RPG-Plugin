@@ -1,13 +1,11 @@
 package de.rpgstupe.rpgplugin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -29,28 +27,19 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.MapMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
-
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.ListenerOptions;
-import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.wrappers.WrappedGameProfile;
-import com.comphenix.protocol.wrappers.WrappedServerPing;
 
 import de.rpgstupe.rpgplugin.customentities.CustomVillager;
 import de.rpgstupe.rpgplugin.database.DatabaseHandler;
 import de.rpgstupe.rpgplugin.database.entities.PlayerEntity;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
-import de.rpgstupe.rpgplugin.inventory.PlayerInventory;
+import de.rpgstupe.rpgplugin.inventory.PlayerInventoryHandler;
 import de.rpgstupe.rpgplugin.util.BookUtil;
 import de.rpgstupe.rpgplugin.util.NMSUtil;
 import net.minecraft.server.v1_11_R1.World;
@@ -60,90 +49,118 @@ public class Main extends JavaPlugin implements Listener {
 	public static final List<PlayerWrapper> PLAYER_WRAPPER_LIST = new ArrayList<PlayerWrapper>();
 	Inventory myInventory;
 	private static DatabaseHandler dbHandler;
+	private PlayerInventoryHandler piHandler;
 
+	/**
+	 * Setup everything needed to run the plugin
+	 * 
+	 * - registering event classes
+	 * - register custom entities
+	 * - add all the online players to the wrapperlist (/reload clears the list)
+	 */
 	@Override
 	public void onEnable() {
 		dbHandler = new DatabaseHandler();
 
 		NMSUtil.registerCustomEntity(120, "villager", CustomVillager.class);
+
+		piHandler = new PlayerInventoryHandler();
+
 		getServer().getPluginManager().registerEvents(this, this);
-		ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(this, ListenerPriority.NORMAL,
-				Arrays.asList(PacketType.Status.Server.SERVER_INFO), ListenerOptions.ASYNC) {
-			@Override
-			public void onPacketSending(PacketEvent event) {
-				handleServerPingAsync(event, event.getPacket().getServerPings().read(0));
-			}
-		});
-		new PlayerInventory(this);
+		getServer().getPluginManager().registerEvents(piHandler, this);
+
+		addPlayersToWrapperList();
 	}
 
-	public void handleServerPingAsync(PacketEvent e, WrappedServerPing ping) {
-		ping.setPlayersMaximum(0);
-		ping.setPlayersOnline(9000);
-		ping.setPlayers(Arrays.asList(new WrappedGameProfile(UUID.randomUUID(), "Krass kek")));
-	}
-
+	/**
+	 * store all the data from online players into the database and remove them from wrapperlist
+	 */
 	@Override
 	public void onDisable() {
+		Collection<? extends Player> playerCollection = Bukkit.getOnlinePlayers();
+		for (Player p : playerCollection) {
+			try {
+				PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
 
+				writePlayerDataIntoDatabase(p, pw);
+
+				Main.PLAYER_WRAPPER_LIST
+						.remove(Main.PLAYER_WRAPPER_LIST.indexOf(Main.getPlayerWrapperFromUUID(p.getUniqueId())));
+			} catch (NoSuchPlayerInWrapperListException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
+	/**
+	 * load player from database (or create new if not existing) and update the inventory
+	 * 
+	 * @param event
+	 */
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		PlayerEntity pe = dbHandler.getPlayerEntityByPlayer(event.getPlayer());
-		if (pe != null) {
-			System.out.println("Added Player with UUID " + event.getPlayer().getUniqueId() + " to List");
-			PLAYER_WRAPPER_LIST.add(new PlayerWrapper(event.getPlayer(), pe.moneySmallAmount, pe.moneyMediumAmount, pe.moneyLargeAmount, pe.fakeInv));
-		} else {
-			Main.PLAYER_WRAPPER_LIST.add(new PlayerWrapper(event.getPlayer()));
-			System.out.println("NEW: Added Player with UUID " + event.getPlayer().getUniqueId() + " to List");
-		}
-
+		addPlayerFromPlayerEntity(event.getPlayer());
 		try {
-			Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId()).updatePlayerInventory(0, event.getPlayer().getInventory().getContents().length);
+			Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId()).updatePlayerInventory(0,
+					event.getPlayer().getInventory().getContents().length);
 		} catch (NoSuchPlayerInWrapperListException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		ItemStack[] itemStack = e.getPlayer().getInventory().getContents();
-//		int emeralds = 0;
-//		for (int i = 0; i < itemStack.length; i++) {
-//			if (itemStack[i] != null) {
-//				if (itemStack[i].getType().equals(Material.EMERALD)) {
-//					emeralds += itemStack[i].getAmount();
-//				}
-//			}
-//		}
-//
-//		e.getPlayer().getInventory().setItem(6, new ItemStack(Material.EMERALD, emeralds));
-//
-//		this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				// Block b = e.getPlayer().getTargetBlock((Set<Material>) null,
-//				// 5);
-//				// Collection<Entity> lookEntities =
-//				// e.getPlayer().getWorld().getNearbyEntities(b.getLocation(),
-//				// 1.5, 2,
-//				// 1.5);
-//				// for (Entity entity : lookEntities) {
-//				// if (entity.getType() == EntityType.ARMOR_STAND) {
-//				// entity.setCustomNameVisible(true);
-//				// Collection<Entity> entities = entity.getNearbyEntities(10, 2,
-//				// 10);
-//				// for (Entity entity2 : entities) {
-//				// if (entity2.getType() == EntityType.ARMOR_STAND) {
-//				// entity2.setCustomNameVisible(false);
-//				// }
-//				// }
-//				// }
-//				// }
-//			}
-//
-//		}, 1L, 1L);
+
+		//
+		// this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new
+		// Runnable() {
+		//
+		// @Override
+		// public void run() {
+		// // Block b = e.getPlayer().getTargetBlock((Set<Material>) null,
+		// // 5);
+		// // Collection<Entity> lookEntities =
+		// // e.getPlayer().getWorld().getNearbyEntities(b.getLocation(),
+		// // 1.5, 2,
+		// // 1.5);
+		// // for (Entity entity : lookEntities) {
+		// // if (entity.getType() == EntityType.ARMOR_STAND) {
+		// // entity.setCustomNameVisible(true);
+		// // Collection<Entity> entities = entity.getNearbyEntities(10, 2,
+		// // 10);
+		// // for (Entity entity2 : entities) {
+		// // if (entity2.getType() == EntityType.ARMOR_STAND) {
+		// // entity2.setCustomNameVisible(false);
+		// // }
+		// // }
+		// // }
+		// // }
+		// }
+		//
+		// }, 1L, 1L);
 	}
 
+	/**
+	 * remove player from PlayerWrapperList if he quits and write the playerdata
+	 * to the database
+	 * 
+	 * @param event
+	 */
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		try {
+			Player p = event.getPlayer();
+			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
+
+			writePlayerDataIntoDatabase(p, pw);
+
+			Main.PLAYER_WRAPPER_LIST.remove(
+					Main.PLAYER_WRAPPER_LIST.indexOf(Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId())));
+		} catch (NoSuchPlayerInWrapperListException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * handling the commands
+	 */
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		Player p = (Player) sender;
@@ -194,47 +211,18 @@ public class Main extends JavaPlugin implements Listener {
 		return false;
 	}
 
-	private void damageText(Entity entity) {
-		if (!EntityType.ARMOR_STAND.equals(entity.getType())) {
-			ArmorStand stand = entity.getLocation().getWorld()
-					.spawn(new Location(entity.getWorld(), entity.getLocation().getX() + ((Math.random() * 2) - 1),
-							entity.getLocation().getY() + ((Math.random() * 2)),
-							entity.getLocation().getZ() + ((Math.random() * 2) - 1)), ArmorStand.class);
-			stand.setMarker(true);
-			stand.setGravity(true);
-			stand.setCustomName("§c" + (int) ((LivingEntity) entity).getHealth());
-			stand.setCustomNameVisible(true);
-			stand.setVisible(false);
-			stand.setInvulnerable(true);
-
-			Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-				int counter = 0;
-
-				@Override
-				public void run() {
-					if (counter == 2000) {
-						stand.remove();
-					}
-					counter++;
-					stand.setVelocity(new Vector(0, 0.07, 0));
-				}
-
-			}, 0, 1L);
-		}
-	}
-
 	@EventHandler
 	public void onClick(PlayerInteractEvent event) {
-		for (PlayerWrapper testPlayer : PLAYER_WRAPPER_LIST) {
-			if (testPlayer.getUniqueId().equals(event.getPlayer().getUniqueId())) {
-				// if (event.getAction().equals(Action.RIGHT_CLICK_AIR) &&
-				// testPlayer.castSpell) {
-				// testPlayer.sendMessage("You clicked kek. Nomma geht erst nach
-				// casten hoffe ich...");
-				// testPlayer.castSpell = false;
-				// }
-			}
-		}
+//		for (PlayerWrapper testPlayer : PLAYER_WRAPPER_LIST) {
+//			if (testPlayer.getUniqueId().equals(event.getPlayer().getUniqueId())) {
+//				 if (event.getAction().equals(Action.RIGHT_CLICK_AIR) &&
+//				 testPlayer.castSpell) {
+//				 testPlayer.sendMessage("You clicked kek. Nomma geht erst nach
+//				 casten hoffe ich...");
+//				 testPlayer.castSpell = false;
+//				 }
+//			}
+//		}
 		if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 			Location loc = event.getClickedBlock().getLocation();
 			loc.setY(loc.getY() - 1);
@@ -246,6 +234,11 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
+	/**
+	 * test for a custom menu inventory
+	 * 
+	 * @param event
+	 */
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
 		if (myInventory != null) {
@@ -266,10 +259,20 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
+	/**
+	 * opening a custom book
+	 * 
+	 * @param p
+	 */
 	public void openCustomBook(Player p) {
 		BookUtil.openBook(createBook("HI", "MEGAHIGH"), p);
 	}
 
+	/**
+	 * spawning a custom entity
+	 * 
+	 * @param loc the location to spawn it at
+	 */
 	public void spawnCustomEntity(Location loc) {
 		World nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
 
@@ -280,6 +283,11 @@ public class Main extends JavaPlugin implements Listener {
 		nmsWorld.addEntity(vill);
 	}
 
+	/**
+	 * custom damage calculation test
+	 * 
+	 * @param event
+	 */
 	@EventHandler
 	public void onDamage(EntityDamageByEntityEvent event) {
 		Entity damager = event.getDamager();
@@ -300,14 +308,6 @@ public class Main extends JavaPlugin implements Listener {
 		event.setDamage(1);
 	}
 
-	public ItemStack createMap() {
-		ItemStack map = new ItemStack(Material.MAP);
-		MapMeta mapMeta = (MapMeta) map.getItemMeta();
-		mapMeta.setColor(Color.AQUA);
-		map.setItemMeta(mapMeta);
-		return map;
-	}
-
 	public static ItemStack createBook(String title, String author) {
 		ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
 		BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
@@ -315,7 +315,7 @@ public class Main extends JavaPlugin implements Listener {
 		bookMeta.setAuthor(author);
 		bookMeta.setPages("!TETSTSTSTETSTST");
 		writtenBook.setItemMeta(bookMeta);
-		//List<String> pages = new ArrayList<String>();
+		// List<String> pages = new ArrayList<String>();
 		bookMeta.addPage("Hello, welcome to TimeVisualSale's server!"); // Page
 																		// 1
 		bookMeta.addPage("Website: timevisualsales.com"); // Page 2
@@ -323,6 +323,13 @@ public class Main extends JavaPlugin implements Listener {
 		return writtenBook;
 	}
 
+	/**
+	 * getting a playerwrapper from the players uuid
+	 * 
+	 * @param uuid
+	 * @return
+	 * @throws NoSuchPlayerInWrapperListException
+	 */
 	public static PlayerWrapper getPlayerWrapperFromUUID(UUID uuid) throws NoSuchPlayerInWrapperListException {
 		System.out.println(PLAYER_WRAPPER_LIST.size());
 		for (PlayerWrapper pw : Main.PLAYER_WRAPPER_LIST) {
@@ -335,6 +342,66 @@ public class Main extends JavaPlugin implements Listener {
 
 	public static DatabaseHandler getDbHandler() {
 		return dbHandler;
+	}
+
+	private void writePlayerDataIntoDatabase(Player p, PlayerWrapper pw) {
+		PlayerEntity pe = Main.getDbHandler().getPlayerEntityByPlayer(p);
+		if (pe == null) {
+			pe = new PlayerEntity();
+		}
+		pe.ip = p.getAddress().getHostName();
+		pe.uuid = p.getUniqueId().toString();
+		pe.moneySmallAmount = pw.getMoneySmallAmount();
+		pe.moneyMediumAmount = pw.getMoneyMediumAmount();
+		pe.moneyLargeAmount = pw.getMoneyLargeAmount();
+		pe.fakeInv = pw.invToArray();
+		Main.getDbHandler().savePlayerEntity(pe);
+	}
+
+	private void addPlayersToWrapperList() {
+		Collection<? extends Player> playerCollection = Bukkit.getOnlinePlayers();
+		for (Player p : playerCollection) {
+			addPlayerFromPlayerEntity(p);
+		}
+	}
+
+	private void addPlayerFromPlayerEntity(Player p) {
+		PlayerEntity pe = dbHandler.getPlayerEntityByPlayer(p);
+		if (pe != null) {
+			PLAYER_WRAPPER_LIST.add(
+					new PlayerWrapper(p, pe.moneySmallAmount, pe.moneyMediumAmount, pe.moneyLargeAmount, pe.fakeInv));
+		} else {
+			Main.PLAYER_WRAPPER_LIST.add(new PlayerWrapper(p));
+		}
+	}
+
+	private void damageText(Entity entity) {
+		if (!EntityType.ARMOR_STAND.equals(entity.getType())) {
+			ArmorStand stand = entity.getLocation().getWorld()
+					.spawn(new Location(entity.getWorld(), entity.getLocation().getX() + ((Math.random() * 2) - 1),
+							entity.getLocation().getY() + ((Math.random() * 2)),
+							entity.getLocation().getZ() + ((Math.random() * 2) - 1)), ArmorStand.class);
+			stand.setMarker(true);
+			stand.setGravity(true);
+			stand.setCustomName("§c" + (int) ((LivingEntity) entity).getHealth());
+			stand.setCustomNameVisible(true);
+			stand.setVisible(false);
+			stand.setInvulnerable(true);
+
+			Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+				int counter = 0;
+
+				@Override
+				public void run() {
+					if (counter == 20) {
+						stand.remove();
+					}
+					counter++;
+					stand.setVelocity(new Vector(0, 0.07, 0));
+				}
+
+			}, 0, 1L);
+		}
 	}
 
 }
