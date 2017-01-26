@@ -1,11 +1,9 @@
 package de.rpgstupe.rpgplugin.inventory;
 
 import org.bukkit.inventory.ItemStack;
-import org.mongodb.morphia.annotations.Embedded;
 
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 
-@SuppressWarnings("serial")
 public class FakeInventory {
 	public CustomItemStack[] getFakeInventoryArray() {
 		return fakeInventoryArray;

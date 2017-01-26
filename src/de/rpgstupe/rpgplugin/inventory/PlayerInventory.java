@@ -25,7 +25,6 @@ import de.rpgstupe.rpgplugin.PlayerWrapper;
 import de.rpgstupe.rpgplugin.database.entities.PlayerEntity;
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
-import net.minecraft.server.v1_11_R1.PlayerConnectionUtils;
 
 public class PlayerInventory implements Listener {
 
@@ -114,6 +113,13 @@ public class PlayerInventory implements Listener {
 	public void onInventoryClick(InventoryClickEvent event) {
 		if (event.getRawSlot() >= 1 && event.getRawSlot() <= 4) {
 			event.setCancelled(true);
+		}
+		if (event.getCurrentItem() != null) {
+			if (MoneyStacksManager.moneySmallItem.equals(event.getCurrentItem().getType().name())
+					|| MoneyStacksManager.moneyMediumItem.equals(event.getCurrentItem().getType().name())
+					|| MoneyStacksManager.moneyLargeItem.equals(event.getCurrentItem().getType().name())) {
+				event.setCancelled(true);
+			}
 		}
 	}
 

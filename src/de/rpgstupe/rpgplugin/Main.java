@@ -29,7 +29,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -49,7 +48,6 @@ import com.comphenix.protocol.wrappers.WrappedServerPing;
 
 import de.rpgstupe.rpgplugin.customentities.CustomVillager;
 import de.rpgstupe.rpgplugin.database.DatabaseHandler;
-import de.rpgstupe.rpgplugin.database.daos.PlayerDAO;
 import de.rpgstupe.rpgplugin.database.entities.PlayerEntity;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
 import de.rpgstupe.rpgplugin.inventory.PlayerInventory;
@@ -317,7 +315,7 @@ public class Main extends JavaPlugin implements Listener {
 		bookMeta.setAuthor(author);
 		bookMeta.setPages("!TETSTSTSTETSTST");
 		writtenBook.setItemMeta(bookMeta);
-		List<String> pages = new ArrayList<String>();
+		//List<String> pages = new ArrayList<String>();
 		bookMeta.addPage("Hello, welcome to TimeVisualSale's server!"); // Page
 																		// 1
 		bookMeta.addPage("Website: timevisualsales.com"); // Page 2

@@ -6,15 +6,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
-import org.mongodb.morphia.annotations.Embedded;
 
 import de.rpgstupe.rpgplugin.database.entities.CustomItemStackEntity;
 import de.rpgstupe.rpgplugin.database.entities.DataEntity;
-import de.rpgstupe.rpgplugin.database.entities.ItemMetaEntity;
 import de.rpgstupe.rpgplugin.inventory.CustomItemStack;
 import de.rpgstupe.rpgplugin.inventory.FakeInventory;
 import de.rpgstupe.rpgplugin.inventory.MoneyStacksManager;
-import net.minecraft.server.v1_11_R1.Items;
 
 public class PlayerWrapper {
 
@@ -27,7 +24,6 @@ public class PlayerWrapper {
 
 	private boolean isInventoryOpen = false;
 	
-	@Embedded
 	private FakeInventory fakeInventory;
 
 	// Constructor to pass on the player object
