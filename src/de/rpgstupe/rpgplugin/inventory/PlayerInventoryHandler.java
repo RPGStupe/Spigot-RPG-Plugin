@@ -1,6 +1,7 @@
 package de.rpgstupe.rpgplugin.inventory;
 
 import org.bukkit.Achievement;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -94,6 +95,9 @@ public class PlayerInventoryHandler implements Listener {
 				clearPlayerInventory(p, 9, 35);
 			}
 			pw.setInventoryOpen(false);
+			if (!Material.AIR.equals(event.getPlayer().getItemOnCursor().getType())) {
+				pw.setDropNextItem(true);
+			}
 		} catch (NoSuchPlayerInWrapperListException e) {
 			e.printStackTrace();
 		}
@@ -126,6 +130,10 @@ public class PlayerInventoryHandler implements Listener {
 					|| MoneyStacksHandler.moneyLargeItem.equals(event.getCurrentItem().getType().name())) {
 				event.setCancelled(true);
 			}
+		}
+		if (event.getCurrentItem() == null || Material.AIR.equals(event.getCurrentItem().getType())) {
+			Player p = (Player) event.getWhoClicked();
+			
 		}
 	}
 
@@ -225,9 +233,15 @@ public class PlayerInventoryHandler implements Listener {
 		try {
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
 			if (!pw.isInventoryOpen()) {
-				event.setCancelled(true);
+				if (pw.isDropNextItem()) {
+					pw.getFakeInventory().setComplete(event.getPlayer().getInventory().getContents());
+					pw.setDropNextItem(false);
+				} else {
+					event.setCancelled(true);
+				}
+			} else {
+				pw.getFakeInventory().setComplete(event.getPlayer().getInventory().getContents());
 			}
-			pw.getFakeInventory().setComplete(event.getPlayer().getInventory().getContents());
 		} catch (NoSuchPlayerInWrapperListException e) {
 			e.printStackTrace();
 		}

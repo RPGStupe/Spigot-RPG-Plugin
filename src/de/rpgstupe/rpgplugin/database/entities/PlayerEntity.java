@@ -25,4 +25,8 @@ public class PlayerEntity {
 	
 	@Embedded
 	public CustomItemStackEntity[] fakeInv;
+	
+	public int respawnBlockX;
+	public int respawnBlockY;
+	public int respawnBlockZ;
 }

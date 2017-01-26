@@ -44,7 +44,6 @@ import de.rpgstupe.rpgplugin.inventory.PlayerInventoryHandler;
 import de.rpgstupe.rpgplugin.util.BookUtil;
 import de.rpgstupe.rpgplugin.util.NMSUtil;
 import net.minecraft.server.v1_11_R1.World;
-import net.minecraft.server.v1_11_R1.EntityEvoker.e;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -378,7 +377,7 @@ public class Main extends JavaPlugin implements Listener {
 		PlayerEntity pe = dbHandler.getPlayerEntityByPlayer(p);
 		if (pe != null) {
 			PLAYER_WRAPPER_LIST.add(
-					new PlayerWrapper(p, pe.moneySmallAmount, pe.moneyMediumAmount, pe.moneyLargeAmount, pe.fakeInv));
+					new PlayerWrapper(p, pe.moneySmallAmount, pe.moneyMediumAmount, pe.moneyLargeAmount, pe.fakeInv, new Location(getServer().getWorld("world"), pe.respawnBlockX, pe.respawnBlockY, pe.respawnBlockZ)));
 		} else {
 			Main.PLAYER_WRAPPER_LIST.add(new PlayerWrapper(p));
 		}

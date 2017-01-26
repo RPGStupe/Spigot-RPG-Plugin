@@ -2,6 +2,8 @@ package de.rpgstupe.rpgplugin;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +18,14 @@ import de.rpgstupe.rpgplugin.inventory.MoneyStacksHandler;
 
 public class PlayerWrapper {
 
+	public boolean isDropNextItem() {
+		return dropNextItem;
+	}
+
+	public void setDropNextItem(boolean dropNextItem) {
+		this.dropNextItem = dropNextItem;
+	}
+
 	// Create a variable to store the player
 	private Player player;
 
@@ -23,10 +33,14 @@ public class PlayerWrapper {
 	private int moneyMediumAmount;
 	private int moneyLargeAmount;
 
+	private Location respawnLocation;
+	
 	private boolean isInventoryOpen = false;
 	
 	private FakeInventory fakeInventory;
 
+	private boolean dropNextItem = false;
+	
 	// Constructor to pass on the player object
 	public PlayerWrapper(Player player) {
 		// Store the player object
@@ -36,17 +50,21 @@ public class PlayerWrapper {
 		this.moneyMediumAmount = 0;
 		this.moneyLargeAmount = 0;
 
+		this.respawnLocation = new Location(Bukkit.getWorld("world"), 4000, 100, 4000);
+		
 		this.fakeInventory = new FakeInventory(41);
 	}
 
 	public PlayerWrapper(Player player, int moneySmallAmount, int moneyMediumAmount, int moneyLargeAmount,
-			CustomItemStackEntity[] fakeInv) {
+			CustomItemStackEntity[] fakeInv, Location respawnLocation) {
 		this.player = player;
 
 		this.moneySmallAmount = moneySmallAmount;
 		this.moneyMediumAmount = moneyMediumAmount;
 		this.moneyLargeAmount = moneyLargeAmount;
 
+		this.respawnLocation = respawnLocation;
+		
 		ItemStack[] stack = new ItemStack[fakeInv.length];
 		for (int i = 0; i < fakeInv.length; i++) {
 			if (fakeInv[i] != null) {
