@@ -58,17 +58,20 @@ public class FakeInventory {
 	 * @return
 	 */
 	public boolean isCustomItemStackFitInInventory(CustomItemStack itemStack) {
-		// TODO Money Slots rausnehmen
 		int tempStackSize = itemStack.getItemStack().getAmount();
-
+		int counter = 0;
 		for (CustomItemStack i : fakeInventoryArray) {
-			if (i == null) {
-				tempStackSize -= itemStack.getItemStack().getMaxStackSize();
-			} else if (i.getItemStack().isSimilar(itemStack.getItemStack())) {
-				if (i.getItemStack().getAmount() < i.getItemStack().getMaxStackSize()) {
-					tempStackSize -= i.getItemStack().getMaxStackSize() - i.getItemStack().getAmount();
+			if (MoneyStacksHandler.moneySlotsUsed && counter != MoneyStacksHandler.moneySmallSlot
+					&& counter != MoneyStacksHandler.moneyMediumSlot && counter != MoneyStacksHandler.moneyLargeSlot) {
+				if (i == null) {
+					tempStackSize -= itemStack.getItemStack().getMaxStackSize();
+				} else if (i.getItemStack().isSimilar(itemStack.getItemStack())) {
+					if (i.getItemStack().getAmount() < i.getItemStack().getMaxStackSize()) {
+						tempStackSize -= i.getItemStack().getMaxStackSize() - i.getItemStack().getAmount();
+					}
 				}
 			}
+			counter++;
 		}
 
 		return tempStackSize <= 0 ? true : false;
@@ -106,6 +109,7 @@ public class FakeInventory {
 				}
 			}
 		}
+
 		if (stackSizeTemp > 0) {
 			CustomItemStack tempStack = new CustomItemStack();
 			tempStack.setItemStack(itemStack.getItemStack());
@@ -117,9 +121,12 @@ public class FakeInventory {
 
 	public int indexOf(CustomItemStack cStack) {
 		for (int i = 0; i < inventorySize; i++) {
-			if (cStack == null && fakeInventoryArray[i] == null
-					|| cStack != null && cStack.equals(fakeInventoryArray[i])) {
-				return i;
+			if (MoneyStacksHandler.moneySlotsUsed && i != MoneyStacksHandler.moneySmallSlot
+					&& i != MoneyStacksHandler.moneyMediumSlot && i != MoneyStacksHandler.moneyLargeSlot) {
+				if (cStack == null && fakeInventoryArray[i] == null
+						|| cStack != null && cStack.equals(fakeInventoryArray[i])) {
+					return i;
+				}
 			}
 		}
 		return -1;

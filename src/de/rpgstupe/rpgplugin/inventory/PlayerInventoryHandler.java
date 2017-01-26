@@ -6,6 +6,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -17,7 +18,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import de.rpgstupe.rpgplugin.Main;
 import de.rpgstupe.rpgplugin.PlayerWrapper;
@@ -28,16 +28,15 @@ public class PlayerInventoryHandler implements Listener {
 
 	private final FileConfiguration playerInvConfig;
 
-	JavaPlugin plugin;
-
 	/**
 	 * this class handles the players inventory by writing into the fake
 	 * inventory and putting items (e.g. money) into fixed slots
 	 * 
+	 * @param pic
+	 * 
 	 * @param plugin
 	 */
-	public PlayerInventoryHandler() {
-		PlayerInventoryConfig pic = new PlayerInventoryConfig(plugin);
+	public PlayerInventoryHandler(PlayerInventoryConfig pic) {
 		this.playerInvConfig = pic.getInvConfig();
 		loadConfig();
 		new MoneyStacksHandler(playerInvConfig);
@@ -111,6 +110,16 @@ public class PlayerInventoryHandler implements Listener {
 		if (event.getRawSlot() >= 1 && event.getRawSlot() <= 4) {
 			event.setCancelled(true);
 		}
+		if (ClickType.SHIFT_LEFT.equals(event.getClick()) || ClickType.SHIFT_RIGHT.equals(event.getClick())) {
+			event.setCancelled(true);
+		}
+		if (MoneyStacksHandler.moneySlotsUsed) {
+			if (MoneyStacksHandler.moneySmallSlot == event.getSlot()
+					|| MoneyStacksHandler.moneyMediumSlot == event.getSlot()
+					|| MoneyStacksHandler.moneyLargeSlot == event.getSlot()) {
+				event.setCancelled(true);
+			}
+		}
 		if (event.getCurrentItem() != null) {
 			if (MoneyStacksHandler.moneySmallItem.equals(event.getCurrentItem().getType().name())
 					|| MoneyStacksHandler.moneyMediumItem.equals(event.getCurrentItem().getType().name())
@@ -131,6 +140,13 @@ public class PlayerInventoryHandler implements Listener {
 		if (event.getRawSlots().contains(1) || event.getRawSlots().contains(2) || event.getRawSlots().contains(3)
 				|| event.getRawSlots().contains(4)) {
 			event.setCancelled(true);
+		}
+		if (MoneyStacksHandler.moneySlotsUsed) {
+			if (event.getInventorySlots().contains(MoneyStacksHandler.moneySmallSlot)
+					|| event.getInventorySlots().contains(MoneyStacksHandler.moneyMediumSlot)
+					|| event.getInventorySlots().contains(MoneyStacksHandler.moneyLargeSlot)) {
+				event.setCancelled(true);
+			}
 		}
 	}
 
@@ -161,33 +177,34 @@ public class PlayerInventoryHandler implements Listener {
 		Player p = event.getPlayer();
 		try {
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
-			// Special treatment if item is of type money
-			if (isItemTypeMoney(event.getItem().getItemStack())) {
-				// TODO Does not work as intended when Money does not fit into
-				// the inventory
-				MoneyStacksHandler.mergeMoneyIntoPlayerWrapper(pw,
-						MoneyStacksHandler.moneySmallItem.equals(event.getItem().getItemStack().getType().name())
-								? event.getItem().getItemStack().getAmount() : 0,
-						MoneyStacksHandler.moneyMediumItem.equals(event.getItem().getItemStack().getType().name())
-								? event.getItem().getItemStack().getAmount() : 0,
-						MoneyStacksHandler.moneyLargeItem.equals(event.getItem().getItemStack().getType().name())
-								? event.getItem().getItemStack().getAmount() : 0);
-				pw.setMoneyInFakeInv();
-				event.getItem().remove();
-			} else {
-				CustomItemStack cStack = new CustomItemStack();
-				cStack.setItemStack(event.getItem().getItemStack());
-				if (pw.getFakeInventory().isCustomItemStackFitInInventory(cStack)) {
+			if (!pw.isInventoryOpen()) {
+				// Special treatment if item is of type money
+				if (isItemTypeMoney(event.getItem().getItemStack())) {
+					// TODO Does not work as intended when Money does not fit
+					// into
+					// the inventory
+					MoneyStacksHandler.mergeMoneyIntoPlayerWrapper(pw,
+							MoneyStacksHandler.moneySmallItem.equals(event.getItem().getItemStack().getType().name())
+									? event.getItem().getItemStack().getAmount() : 0,
+							MoneyStacksHandler.moneyMediumItem.equals(event.getItem().getItemStack().getType().name())
+									? event.getItem().getItemStack().getAmount() : 0,
+							MoneyStacksHandler.moneyLargeItem.equals(event.getItem().getItemStack().getType().name())
+									? event.getItem().getItemStack().getAmount() : 0);
+					pw.setMoneyInFakeInv();
 					event.getItem().remove();
-					// TODO Tonlage fixen
 					// Custom pickup sound
-					event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5F, 1.2F);
-					pw.getFakeInventory().addCustomItemStack(cStack);
+					event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5F, 4F);
+				} else {
+					CustomItemStack cStack = new CustomItemStack();
+					cStack.setItemStack(event.getItem().getItemStack());
+					if (pw.getFakeInventory().isCustomItemStackFitInInventory(cStack)) {
+						event.getItem().remove();
+						// Custom pickup sound
+						event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5F,
+								1.2F);
+						pw.getFakeInventory().addCustomItemStack(cStack);
 
-					// update whole inventory if open, otherwise only the hotbar
-					if (pw.isInventoryOpen()) {
-						pw.updatePlayerInventory(0, p.getInventory().getContents().length);
-					} else {
+						// update only the hotbar
 						pw.updatePlayerInventory(0, 8);
 					}
 				}
@@ -210,6 +227,7 @@ public class PlayerInventoryHandler implements Listener {
 			if (!pw.isInventoryOpen()) {
 				event.setCancelled(true);
 			}
+			pw.getFakeInventory().setComplete(event.getPlayer().getInventory().getContents());
 		} catch (NoSuchPlayerInWrapperListException e) {
 			e.printStackTrace();
 		}

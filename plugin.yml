@@ -5,6 +5,11 @@ author: me
 description: An Example plugin
 depend: [ProtocolLib]
 commands:
+  rpgclearinv:
+    description: An example command
+    usage: /rpgclearinv
+    permission: myplugin.mycommand
+    permission-message: You don't have the myplugin.mycommand permission.
   mycommand:
     description: An example command
     usage: /mycommand

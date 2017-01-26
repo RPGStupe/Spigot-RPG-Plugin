@@ -39,10 +39,12 @@ import de.rpgstupe.rpgplugin.customentities.CustomVillager;
 import de.rpgstupe.rpgplugin.database.DatabaseHandler;
 import de.rpgstupe.rpgplugin.database.entities.PlayerEntity;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
+import de.rpgstupe.rpgplugin.inventory.PlayerInventoryConfig;
 import de.rpgstupe.rpgplugin.inventory.PlayerInventoryHandler;
 import de.rpgstupe.rpgplugin.util.BookUtil;
 import de.rpgstupe.rpgplugin.util.NMSUtil;
 import net.minecraft.server.v1_11_R1.World;
+import net.minecraft.server.v1_11_R1.EntityEvoker.e;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -64,11 +66,13 @@ public class Main extends JavaPlugin implements Listener {
 
 		NMSUtil.registerCustomEntity(120, "villager", CustomVillager.class);
 
-		piHandler = new PlayerInventoryHandler();
 
 		getServer().getPluginManager().registerEvents(this, this);
-		getServer().getPluginManager().registerEvents(piHandler, this);
 
+		PlayerInventoryConfig pic = new PlayerInventoryConfig(this);
+		piHandler = new PlayerInventoryHandler(pic);
+
+		getServer().getPluginManager().registerEvents(piHandler, this);
 		addPlayersToWrapperList();
 	}
 
@@ -104,7 +108,6 @@ public class Main extends JavaPlugin implements Listener {
 			Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId()).updatePlayerInventory(0,
 					event.getPlayer().getInventory().getContents().length);
 		} catch (NoSuchPlayerInWrapperListException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -206,6 +209,13 @@ public class Main extends JavaPlugin implements Listener {
 				if (e instanceof Bat) {
 					((Monster) e).setHealth(0);
 				}
+			}
+		} else if (command.getName().equalsIgnoreCase("rpgclearinv")) {
+			try {
+				Main.getPlayerWrapperFromUUID(p.getUniqueId()).getFakeInventory().setComplete(new ItemStack[p.getInventory().getSize()]);
+			} catch (NoSuchPlayerInWrapperListException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		return false;
@@ -331,7 +341,6 @@ public class Main extends JavaPlugin implements Listener {
 	 * @throws NoSuchPlayerInWrapperListException
 	 */
 	public static PlayerWrapper getPlayerWrapperFromUUID(UUID uuid) throws NoSuchPlayerInWrapperListException {
-		System.out.println(PLAYER_WRAPPER_LIST.size());
 		for (PlayerWrapper pw : Main.PLAYER_WRAPPER_LIST) {
 			if (pw != null && uuid.equals(pw.getUniqueId())) {
 				return pw;

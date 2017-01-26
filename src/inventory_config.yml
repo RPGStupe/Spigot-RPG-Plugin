@@ -1,0 +1,30 @@
+hotbar:
+  slots:
+    spell0: 0
+    spell1: 1
+    spell2: 2
+    spell3: 3
+    weapon: 4
+    respawn: 7
+    menu: 8
+inventory:
+  slots:
+    use_money_slots: true
+    money_small: 17
+    money_medium: 16
+    money_large: 15
+money:
+  items:
+    money_small_item: IRON_NUGGET
+    money_medium_item: GOLD_NUGGET
+    money_large_item: GOLD_INGOT
+  durabilities:
+    use_durability_item: false # only if using tools with durability for custom item models
+    money_small_durability: 1
+    money_medium_durability: 2
+    money_large_durability: 3
+    unbreaking: true # 1 if the tool will have unbreaking
+  exchangerate:
+    small_to_medium: 100
+    medium_to_large: 100
+    max_amount_large: 127

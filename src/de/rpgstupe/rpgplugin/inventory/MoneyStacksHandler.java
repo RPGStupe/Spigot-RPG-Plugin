@@ -19,6 +19,8 @@ public class MoneyStacksHandler {
 	public static int moneySmallSlot;
 	public static int moneyMediumSlot;
 	public static int moneyLargeSlot;
+	
+	public static boolean moneySlotsUsed;
 
 	private FileConfiguration playerInvConfig;
 
@@ -79,5 +81,7 @@ public class MoneyStacksHandler {
 		MoneyStacksHandler.moneySmallSlot = playerInvConfig.getInt("inventory.slots.money_small");
 		MoneyStacksHandler.moneyMediumSlot = playerInvConfig.getInt("inventory.slots.money_medium");
 		MoneyStacksHandler.moneyLargeSlot = playerInvConfig.getInt("inventory.slots.money_large");
+		
+		MoneyStacksHandler.moneySlotsUsed = playerInvConfig.getBoolean("inventory.slots.use_money_slots");
 	}
 }

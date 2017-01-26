@@ -18,6 +18,9 @@ public class CustomItemStackEntity {
 	
 	public ItemMetaEntity itemMeta;
 	
+	public CustomItemStackEntity() {
+	}
+	
 	public CustomItemStackEntity(Material type, int amount, DataEntity data, short durability, ItemMetaEntity itemMeta) {
 		this.type = type;
 		this.amount = amount;

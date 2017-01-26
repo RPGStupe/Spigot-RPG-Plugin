@@ -16,6 +16,8 @@ public class ItemMetaEntity {
 	public boolean unbreakable;
 	public Map<String, String> customMetaTags;
 	
+	
+	
 	public ItemMetaEntity(String displayName, List<String> lore, Set<ItemFlag> itemflags, boolean unbreakable) {
 		this.displayName = displayName;
 		this.lore = lore;
