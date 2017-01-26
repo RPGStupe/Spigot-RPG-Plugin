@@ -92,10 +92,13 @@ public class PlayerInventory implements Listener {
 		Player p = (Player) event.getPlayer();
 
 		try {
+			// TODO Stack not saved when in storage inv
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
+			if (pw.isInventoryOpen()) {
+				pw.getFakeInventory().setComplete(p.getInventory().getContents());
+				clearPlayerInventory(p, 9, 35);
+			}
 			pw.setInventoryOpen(false);
-			pw.getFakeInventory().setComplete(p.getInventory().getContents());
-			clearPlayerInventory(p, 9, 35);
 		} catch (NoSuchPlayerInWrapperListException e) {
 			e.printStackTrace();
 		}
@@ -190,7 +193,11 @@ public class PlayerInventory implements Listener {
 	public void onPlayerQuit(PlayerQuitEvent event) {
 		try {
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
-			PlayerEntity pe = new PlayerEntity();
+
+			PlayerEntity pe = Main.getDbHandler().getPlayerEntityByPlayer(event.getPlayer());
+			if (pe == null) {
+				pe = new PlayerEntity();
+			}
 			pe.ip = event.getPlayer().getAddress().getHostName();
 			pe.uuid = event.getPlayer().getUniqueId().toString();
 			pe.moneySmallAmount = pw.getMoneySmallAmount();
@@ -198,7 +205,6 @@ public class PlayerInventory implements Listener {
 			pe.moneyLargeAmount = pw.getMoneyLargeAmount();
 			pe.fakeInv = pw.invToArray();
 			Main.getDbHandler().savePlayerEntity(pe);
-			System.out.println("Removing Player");
 			Main.PLAYER_WRAPPER_LIST.remove(
 					Main.PLAYER_WRAPPER_LIST.indexOf(Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId())));
 		} catch (NoSuchPlayerInWrapperListException e) {
@@ -220,21 +226,20 @@ public class PlayerInventory implements Listener {
 		try {
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
 			if (isItemTypeMoney(event.getItem().getItemStack())) {
-				//TODO geht nicht vernünftig, wenn das Geld nicht ins Inv passt
+				// TODO geht nicht vernünftig, wenn das Geld nicht ins Inv passt
 				MoneyStacksManager.mergeMoneyIntoPlayerWrapper(pw,
 						MoneyStacksManager.moneySmallItem.equals(event.getItem().getItemStack().getType().name())
 								? event.getItem().getItemStack().getAmount() : 0,
 						MoneyStacksManager.moneyMediumItem.equals(event.getItem().getItemStack().getType().name())
 								? event.getItem().getItemStack().getAmount() : 0,
 						MoneyStacksManager.moneyLargeItem.equals(event.getItem().getItemStack().getType().name())
-								? event.getItem().getItemStack().getAmount(): 0);
+								? event.getItem().getItemStack().getAmount() : 0);
 				pw.setMoneyInFakeInv();
 				event.getItem().remove();
 			} else {
 				CustomItemStack cStack = new CustomItemStack();
 				cStack.setItemStack(event.getItem().getItemStack());
-				if (pw.getFakeInventory()
-						.isCustomItemStackFitInInventory(cStack)) {
+				if (pw.getFakeInventory().isCustomItemStackFitInInventory(cStack)) {
 					event.getItem().remove();
 					// TODO Tonlage fixen
 					event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5F, 1.2F);

@@ -1,16 +1,18 @@
 package de.rpgstupe.rpgplugin.database.entities;
 
 
+import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.IndexOptions;
 import org.mongodb.morphia.annotations.Indexed;
-import org.mongodb.morphia.annotations.Reference;
 
 @Entity(value = "players", noClassnameStored = true)
 public class PlayerEntity {
+	
 	@Id
-	public int id;
+	private ObjectId id;
 	
 	@Indexed(options = @IndexOptions(unique = true))
 	public String uuid;
@@ -21,6 +23,6 @@ public class PlayerEntity {
 	public int moneyMediumAmount;
 	public int moneyLargeAmount;
 	
-	@Reference
+	@Embedded
 	public CustomItemStackEntity[] fakeInv;
 }

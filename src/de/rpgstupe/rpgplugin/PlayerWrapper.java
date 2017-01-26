@@ -5,12 +5,16 @@ import java.util.UUID;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 import org.mongodb.morphia.annotations.Embedded;
 
 import de.rpgstupe.rpgplugin.database.entities.CustomItemStackEntity;
+import de.rpgstupe.rpgplugin.database.entities.DataEntity;
+import de.rpgstupe.rpgplugin.database.entities.ItemMetaEntity;
 import de.rpgstupe.rpgplugin.inventory.CustomItemStack;
 import de.rpgstupe.rpgplugin.inventory.FakeInventory;
 import de.rpgstupe.rpgplugin.inventory.MoneyStacksManager;
+import net.minecraft.server.v1_11_R1.Items;
 
 public class PlayerWrapper {
 
@@ -37,14 +41,27 @@ public class PlayerWrapper {
 		this.fakeInventory = new FakeInventory(41);
 	}
 
-	public PlayerWrapper(Player player, int moneySmallAmount, int moneyMediumAmount, int moneyLargeAmount) {
+	public PlayerWrapper(Player player, int moneySmallAmount, int moneyMediumAmount, int moneyLargeAmount,
+			CustomItemStackEntity[] fakeInv) {
 		this.player = player;
 
 		this.moneySmallAmount = moneySmallAmount;
 		this.moneyMediumAmount = moneyMediumAmount;
 		this.moneyLargeAmount = moneyLargeAmount;
 
-		this.fakeInventory = new FakeInventory(41);
+		ItemStack[] stack = new ItemStack[fakeInv.length];
+		for (int i = 0; i < fakeInv.length; i++) {
+			if (fakeInv[i] != null) {
+				ItemStack s = new ItemStack(fakeInv[i].type, fakeInv[i].amount, fakeInv[i].durability);
+				MaterialData md = new MaterialData(fakeInv[i].data.type);
+				s.setData(md);
+				stack[i] = s;
+			} else {
+				stack[i] = null;
+			}
+		}
+		this.fakeInventory = new FakeInventory(fakeInv.length);
+		this.fakeInventory.setComplete(stack);
 	}
 
 	// Getter to get the player object
@@ -104,8 +121,10 @@ public class PlayerWrapper {
 
 	public void updatePlayerInventory(int fromId, int toId) {
 		for (int i = fromId; i < toId; i++) {
-			player.getInventory().setItem(i, getFakeInventory().getFakeInventoryArray()[i].getItemStack() == null ? null : getFakeInventory().getFakeInventoryArray()[i].getItemStack());
+			player.getInventory().setItem(i, getFakeInventory().getFakeInventoryArray()[i] == null ? null
+					: getFakeInventory().getFakeInventoryArray()[i].getItemStack());
 		}
+
 	}
 
 	public boolean isInventoryOpen() {
@@ -117,12 +136,40 @@ public class PlayerWrapper {
 	}
 
 	public CustomItemStackEntity[] invToArray() {
-		CustomItemStackEntity[] stackArrayEntity = new CustomItemStackEntity[this.getFakeInventory().getFakeInventoryArray().length];
+		CustomItemStackEntity[] stackArrayEntity = new CustomItemStackEntity[this.getFakeInventory()
+				.getFakeInventoryArray().length];
 		for (int i = 0; i < this.getFakeInventory().getFakeInventoryArray().length; i++) {
-			CustomItemStackEntity tempStackEntity = new CustomItemStackEntity();
-			tempStackEntity.stack = this.getFakeInventory().getFakeInventoryArray()[i].getItemStack() != null ? new ItemStack(this.getFakeInventory().getFakeInventoryArray()[i].getItemStack()) : null;
+			
+			CustomItemStackEntity tempStackEntity = itemStackToCustomItemStackEntity(
+					this.getFakeInventory().getFakeInventoryArray()[i] == null ? null
+							: getFakeInventory().getFakeInventoryArray()[i].getItemStack());
+			
+			
 			stackArrayEntity[i] = tempStackEntity;
 		}
+
 		return stackArrayEntity;
+	}
+
+	private CustomItemStackEntity itemStackToCustomItemStackEntity(ItemStack itemStack) {
+
+		if (itemStack == null) {
+			return null;
+		}
+		CustomItemStackEntity tempStackEntity = new CustomItemStackEntity();
+		tempStackEntity.amount = itemStack.getAmount();
+		DataEntity de;
+		if (itemStack.getData() == null) {
+			tempStackEntity.data = null;
+		} else {
+			de = new DataEntity();
+			de.type = itemStack.getData().getItemType();
+			tempStackEntity.data = de;
+		}
+		tempStackEntity.durability = itemStack.getDurability();
+		tempStackEntity.type = itemStack.getType();
+		
+		
+		return tempStackEntity;
 	}
 }

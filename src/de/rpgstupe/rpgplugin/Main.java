@@ -92,11 +92,10 @@ public class Main extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		System.out.println("Main onJoin");
-		PlayerEntity pe = null;//dbHandler.getPlayerEntityByPlayer(event.getPlayer());
+		PlayerEntity pe = dbHandler.getPlayerEntityByPlayer(event.getPlayer());
 		if (pe != null) {
 			System.out.println("Added Player with UUID " + event.getPlayer().getUniqueId() + " to List");
-			PLAYER_WRAPPER_LIST.add(new PlayerWrapper(event.getPlayer(), pe.moneySmallAmount, pe.moneyMediumAmount, pe.moneyLargeAmount));
+			PLAYER_WRAPPER_LIST.add(new PlayerWrapper(event.getPlayer(), pe.moneySmallAmount, pe.moneyMediumAmount, pe.moneyLargeAmount, pe.fakeInv));
 		} else {
 			Main.PLAYER_WRAPPER_LIST.add(new PlayerWrapper(event.getPlayer()));
 			System.out.println("NEW: Added Player with UUID " + event.getPlayer().getUniqueId() + " to List");

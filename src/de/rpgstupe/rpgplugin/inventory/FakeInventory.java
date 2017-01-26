@@ -28,6 +28,7 @@ public class FakeInventory {
 	 *            for players)
 	 */
 	public FakeInventory(int inventorySize) {
+		System.out.println("\n\n\nNEW FAKEINV\n\n\n");
 		this.inventorySize = inventorySize;
 		fakeInventoryArray = new CustomItemStack[this.inventorySize];
 		createEmptyInventory();
@@ -46,10 +47,13 @@ public class FakeInventory {
 	public boolean addCustomItemStack(CustomItemStack itemStack) throws ItemDoesNotFitException {
 		if (isCustomItemStackFitInInventory(itemStack)) {
 			mergeStackWithInventory(itemStack);
+
+			System.out.println("addCustomItemStack" + toString());
 			return true;
 		} else {
 			throw new ItemDoesNotFitException();
 		}
+
 	}
 
 	/**
@@ -72,6 +76,7 @@ public class FakeInventory {
 				}
 			}
 		}
+
 		return tempStackSize <= 0 ? true : false;
 	}
 
@@ -82,6 +87,8 @@ public class FakeInventory {
 				CustomItemStack cStack = new CustomItemStack();
 				cStack.setItemStack(s);
 				fakeInventoryArray[counter] = cStack;
+			} else {
+				fakeInventoryArray[counter] = null;
 			}
 			counter++;
 		}
@@ -91,14 +98,17 @@ public class FakeInventory {
 		int stackSizeTemp = itemStack.getItemStack().getAmount();
 
 		for (CustomItemStack stackInFakeInv : fakeInventoryArray) {
-			if (itemStack.getItemStack().isSimilar(stackInFakeInv.getItemStack()) && stackInFakeInv.getItemStack().getAmount() < stackInFakeInv.getItemStack().getMaxStackSize()) {
-				if (stackSizeTemp + stackInFakeInv.getItemStack().getAmount() <= stackInFakeInv.getItemStack().getMaxStackSize()) {
+			if (stackInFakeInv != null && itemStack.getItemStack().isSimilar(stackInFakeInv.getItemStack())
+					&& stackInFakeInv.getItemStack().getAmount() < stackInFakeInv.getItemStack().getMaxStackSize()) {
+				if (stackSizeTemp + stackInFakeInv.getItemStack().getAmount() <= stackInFakeInv.getItemStack()
+						.getMaxStackSize()) {
 					// passt komplett auf den Stack
 					stackInFakeInv.getItemStack().setAmount(stackSizeTemp + stackInFakeInv.getItemStack().getAmount());
 					stackSizeTemp = 0;
 					break;
 				} else {
-					stackSizeTemp = (stackInFakeInv.getItemStack().getAmount() + stackSizeTemp) % stackInFakeInv.getItemStack().getMaxStackSize();
+					stackSizeTemp = (stackInFakeInv.getItemStack().getAmount() + stackSizeTemp)
+							% stackInFakeInv.getItemStack().getMaxStackSize();
 					stackInFakeInv.getItemStack().setAmount(stackInFakeInv.getItemStack().getMaxStackSize());
 				}
 			}
@@ -109,11 +119,13 @@ public class FakeInventory {
 			tempStack.getItemStack().setAmount(stackSizeTemp);
 			fakeInventoryArray[indexOf(null)] = tempStack;
 		}
+
 	}
-	
+
 	public int indexOf(CustomItemStack cStack) {
 		for (int i = 0; i < inventorySize; i++) {
-			if (fakeInventoryArray[i].equals(null)) {
+			if (cStack == null && fakeInventoryArray[i] == null
+					|| cStack != null && cStack.equals(fakeInventoryArray[i])) {
 				return i;
 			}
 		}
@@ -126,8 +138,15 @@ public class FakeInventory {
 			fakeInventoryArray[i].setItemStack(null);
 		}
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		String s = "";
+		for (CustomItemStack stack : fakeInventoryArray) {
+			s += stack != null ? stack.getItemStack() : null + ", ";
+		}
+		return s;
+	}
 
 	// public boolean isMoneyFitInInventory(CustomItemStack customItemStack,
 	// PlayerWrapper pw) {
