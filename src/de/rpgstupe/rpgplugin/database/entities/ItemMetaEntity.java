@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import de.rpgstupe.rpgplugin.player.inventory.CustomItemStack;
 
 public class ItemMetaEntity {
 	public String displayName;
@@ -28,5 +31,13 @@ public class ItemMetaEntity {
 
 	public ItemMetaEntity() {
 		this(null, new ArrayList<String>(), new HashSet<ItemFlag>(), false);
+	}
+
+	public ItemMetaEntity(CustomItemStack stack) {
+		this(stack.getItemStack().getItemMeta());
+	}
+
+	public ItemMetaEntity(ItemMeta itemMeta) {
+		this(itemMeta.getDisplayName(), itemMeta.getLore(), itemMeta.getItemFlags(), itemMeta.isUnbreakable());
 	}
 }

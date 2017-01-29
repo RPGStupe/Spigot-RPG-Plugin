@@ -2,7 +2,9 @@ package de.rpgstupe.rpgplugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -35,12 +37,19 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
+import de.rpgstupe.rpgplugin.configuration.ConfigHandler;
 import de.rpgstupe.rpgplugin.customentities.CustomVillager;
 import de.rpgstupe.rpgplugin.database.DatabaseHandler;
-import de.rpgstupe.rpgplugin.database.entities.PlayerEntity;
+import de.rpgstupe.rpgplugin.database.entities.CharacterEntity;
+import de.rpgstupe.rpgplugin.database.entities.FakeInventoryEntity;
+import de.rpgstupe.rpgplugin.database.entities.LocationEntity;
+import de.rpgstupe.rpgplugin.database.entities.MoneyHandlerEntity;
+import de.rpgstupe.rpgplugin.database.entities.PlayerWrapperEntity;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
-import de.rpgstupe.rpgplugin.inventory.PlayerInventoryConfig;
-import de.rpgstupe.rpgplugin.inventory.PlayerInventoryHandler;
+import de.rpgstupe.rpgplugin.player.Character;
+import de.rpgstupe.rpgplugin.player.PlayerWrapper;
+import de.rpgstupe.rpgplugin.player.inventory.FakeInventory;
+import de.rpgstupe.rpgplugin.player.inventory.CharacterInventoryHandler;
 import de.rpgstupe.rpgplugin.util.BookUtil;
 import de.rpgstupe.rpgplugin.util.NMSUtil;
 import net.minecraft.server.v1_11_R1.World;
@@ -50,14 +59,13 @@ public class Main extends JavaPlugin implements Listener {
 	public static final List<PlayerWrapper> PLAYER_WRAPPER_LIST = new ArrayList<PlayerWrapper>();
 	Inventory myInventory;
 	private static DatabaseHandler dbHandler;
-	private PlayerInventoryHandler piHandler;
+	private CharacterInventoryHandler piHandler;
 
 	/**
 	 * Setup everything needed to run the plugin
 	 * 
-	 * - registering event classes
-	 * - register custom entities
-	 * - add all the online players to the wrapperlist (/reload clears the list)
+	 * - registering event classes - register custom entities - add all the
+	 * online players to the wrapperlist (/reload clears the list)
 	 */
 	@Override
 	public void onEnable() {
@@ -65,18 +73,18 @@ public class Main extends JavaPlugin implements Listener {
 
 		NMSUtil.registerCustomEntity(120, "villager", CustomVillager.class);
 
-
 		getServer().getPluginManager().registerEvents(this, this);
 
-		PlayerInventoryConfig pic = new PlayerInventoryConfig(this);
-		piHandler = new PlayerInventoryHandler(pic);
+		new ConfigHandler(this);
+		piHandler = new CharacterInventoryHandler();
 
 		getServer().getPluginManager().registerEvents(piHandler, this);
 		addPlayersToWrapperList();
 	}
 
 	/**
-	 * store all the data from online players into the database and remove them from wrapperlist
+	 * store all the data from online players into the database and remove them
+	 * from wrapperlist
 	 */
 	@Override
 	public void onDisable() {
@@ -96,7 +104,8 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	/**
-	 * load player from database (or create new if not existing) and update the inventory
+	 * load player from database (or create new if not existing) and update the
+	 * inventory
 	 * 
 	 * @param event
 	 */
@@ -210,28 +219,30 @@ public class Main extends JavaPlugin implements Listener {
 				}
 			}
 		} else if (command.getName().equalsIgnoreCase("rpgclearinv")) {
-			try {
-				Main.getPlayerWrapperFromUUID(p.getUniqueId()).getFakeInventory().setComplete(new ItemStack[p.getInventory().getSize()]);
-			} catch (NoSuchPlayerInWrapperListException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			// try {
+			// Main.getPlayerWrapperFromUUID(p.getUniqueId()).getFakeInventory().setComplete(new
+			// ItemStack[p.getInventory().getSize()]);
+			// } catch (NoSuchPlayerInWrapperListException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
 		}
 		return false;
 	}
 
 	@EventHandler
 	public void onClick(PlayerInteractEvent event) {
-//		for (PlayerWrapper testPlayer : PLAYER_WRAPPER_LIST) {
-//			if (testPlayer.getUniqueId().equals(event.getPlayer().getUniqueId())) {
-//				 if (event.getAction().equals(Action.RIGHT_CLICK_AIR) &&
-//				 testPlayer.castSpell) {
-//				 testPlayer.sendMessage("You clicked kek. Nomma geht erst nach
-//				 casten hoffe ich...");
-//				 testPlayer.castSpell = false;
-//				 }
-//			}
-//		}
+		// for (PlayerWrapper testPlayer : PLAYER_WRAPPER_LIST) {
+		// if (testPlayer.getUniqueId().equals(event.getPlayer().getUniqueId()))
+		// {
+		// if (event.getAction().equals(Action.RIGHT_CLICK_AIR) &&
+		// testPlayer.castSpell) {
+		// testPlayer.sendMessage("You clicked kek. Nomma geht erst nach
+		// casten hoffe ich...");
+		// testPlayer.castSpell = false;
+		// }
+		// }
+		// }
 		if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 			Location loc = event.getClickedBlock().getLocation();
 			loc.setY(loc.getY() - 1);
@@ -280,7 +291,8 @@ public class Main extends JavaPlugin implements Listener {
 	/**
 	 * spawning a custom entity
 	 * 
-	 * @param loc the location to spawn it at
+	 * @param loc
+	 *            the location to spawn it at
 	 */
 	public void spawnCustomEntity(Location loc) {
 		World nmsWorld = ((CraftWorld) loc.getWorld()).getHandle();
@@ -353,17 +365,25 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	private void writePlayerDataIntoDatabase(Player p, PlayerWrapper pw) {
-		PlayerEntity pe = Main.getDbHandler().getPlayerEntityByPlayer(p);
-		if (pe == null) {
-			pe = new PlayerEntity();
+		PlayerWrapperEntity pwe = Main.getDbHandler().getPlayerEntityByPlayer(p);
+		if (pwe == null) {
+			pwe = new PlayerWrapperEntity();
 		}
-		pe.ip = p.getAddress().getHostName();
-		pe.uuid = p.getUniqueId().toString();
-		pe.moneySmallAmount = pw.getMoneySmallAmount();
-		pe.moneyMediumAmount = pw.getMoneyMediumAmount();
-		pe.moneyLargeAmount = pw.getMoneyLargeAmount();
-		pe.fakeInv = pw.invToArray();
-		Main.getDbHandler().savePlayerEntity(pe);
+		pwe.ip = p.getAddress().getHostName();
+		pwe.uuid = p.getUniqueId().toString();
+		pwe.characters = createCharacterSetEntities(pw);
+		pwe.buildInventory = new FakeInventoryEntity(pw.getBuildInventory());
+		Main.getDbHandler().savePlayerEntity(pwe);
+	}
+
+	private Set<CharacterEntity> createCharacterSetEntities(PlayerWrapper pw) {
+		Set<CharacterEntity> characters = new HashSet<CharacterEntity>();
+		for (Character c : pw.getCharacters()) {
+			characters.add(new CharacterEntity(new MoneyHandlerEntity(c.getMoneyHandler()),
+					new LocationEntity(c.getRespawnLocation()), new FakeInventoryEntity(c.getCharacterInventory()),
+					c.getExp(), c.getLevel(), c.getDamage(), c.getArmor()));
+		}
+		return characters;
 	}
 
 	private void addPlayersToWrapperList() {
@@ -374,12 +394,13 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	private void addPlayerFromPlayerEntity(Player p) {
-		PlayerEntity pe = dbHandler.getPlayerEntityByPlayer(p);
-		if (pe != null) {
-			PLAYER_WRAPPER_LIST.add(
-					new PlayerWrapper(p, pe.moneySmallAmount, pe.moneyMediumAmount, pe.moneyLargeAmount, pe.fakeInv, new Location(getServer().getWorld("world"), pe.respawnBlockX, pe.respawnBlockY, pe.respawnBlockZ)));
+		PlayerWrapperEntity pe = dbHandler.getPlayerEntityByPlayer(p);
+		if (pe == null) {
+			PLAYER_WRAPPER_LIST
+					.add(new PlayerWrapper(p, new HashSet<Character>(), new FakeInventory(p.getInventory().getSize())));
 		} else {
-			Main.PLAYER_WRAPPER_LIST.add(new PlayerWrapper(p));
+			FakeInventory buildInventory = new FakeInventory(pe.buildInventory.toFakeInventory());
+			PLAYER_WRAPPER_LIST.add(new PlayerWrapper(p, new HashSet<Character>(), buildInventory));
 		}
 	}
 

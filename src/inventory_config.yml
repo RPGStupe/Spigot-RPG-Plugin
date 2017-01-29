@@ -8,6 +8,8 @@ hotbar:
     respawn: 7
     menu: 8
 inventory:
+  items:
+    max_amount_healthpotion: 5
   slots:
     use_money_slots: true
     money_small: 17

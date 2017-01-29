@@ -1,6 +1,8 @@
 package de.rpgstupe.rpgplugin.database.entities;
 
 
+import java.util.Set;
+
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
@@ -9,7 +11,7 @@ import org.mongodb.morphia.annotations.IndexOptions;
 import org.mongodb.morphia.annotations.Indexed;
 
 @Entity(value = "players", noClassnameStored = true)
-public class PlayerEntity {
+public class PlayerWrapperEntity {
 	
 	@Id
 	private ObjectId id;
@@ -18,15 +20,10 @@ public class PlayerEntity {
 	public String uuid;
 	
 	public String ip;
-
-	public int moneySmallAmount;
-	public int moneyMediumAmount;
-	public int moneyLargeAmount;
 	
 	@Embedded
-	public CustomItemStackEntity[] fakeInv;
+	public Set<CharacterEntity> characters;
 	
-	public int respawnBlockX;
-	public int respawnBlockY;
-	public int respawnBlockZ;
+	@Embedded
+	public FakeInventoryEntity buildInventory;
 }

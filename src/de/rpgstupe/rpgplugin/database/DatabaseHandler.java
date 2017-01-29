@@ -8,7 +8,7 @@ import com.mongodb.MongoClient;
 
 import de.rpgstupe.rpgplugin.database.daos.PlayerDAO;
 import de.rpgstupe.rpgplugin.database.entities.CustomItemStackEntity;
-import de.rpgstupe.rpgplugin.database.entities.PlayerEntity;
+import de.rpgstupe.rpgplugin.database.entities.PlayerWrapperEntity;
 
 public class DatabaseHandler {
 	private MongoClient mc;
@@ -21,13 +21,13 @@ public class DatabaseHandler {
 
 		morphia = new Morphia();
 
-		morphia.map(PlayerEntity.class);
+		morphia.map(PlayerWrapperEntity.class);
 		morphia.map(CustomItemStackEntity.class);
 
 		datastore = morphia.createDatastore(mc, "dbPlayers");
 		datastore.ensureIndexes();
 
-		playerDAO = new PlayerDAO(PlayerEntity.class, datastore);
+		playerDAO = new PlayerDAO(PlayerWrapperEntity.class, datastore);
 	}
 
 	// public PlayerWrapper getPlayerWrapperByPlayer(Player player) {
@@ -43,11 +43,11 @@ public class DatabaseHandler {
 	// return du;
 	// }
 
-	public void savePlayerEntity(PlayerEntity pe) {
+	public void savePlayerEntity(PlayerWrapperEntity pe) {
 		playerDAO.save(pe);
 	}
 
-	public PlayerEntity getPlayerEntityByPlayer(Player p) {
+	public PlayerWrapperEntity getPlayerEntityByPlayer(Player p) {
 		return playerDAO.findOne("uuid", p.getUniqueId().toString());
 	}
 
