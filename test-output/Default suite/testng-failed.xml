@@ -3,11 +3,11 @@
 <suite name="Failed suite [Default suite]">
   <test name="Default test(failed)" preserve-order="true">
     <classes>
-      <class name="de.rpgstupe.rpgplugin.inventory.FakeInventoryTest">
+      <class name="de.rpgstupe.rpgplugin.player.inventory.FakeInventoryTest">
         <methods>
-          <include name="isCustomItemStackFitInInventoryShouldReturnBooleanValueCorrectly" invocation-numbers="0"/>
+          <include name="isCustomItemStackFitInInventoryShouldReturnFalseForInvalidCases" invocation-numbers="0"/>
         </methods>
-      </class> <!-- de.rpgstupe.rpgplugin.inventory.FakeInventoryTest -->
+      </class> <!-- de.rpgstupe.rpgplugin.player.inventory.FakeInventoryTest -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->

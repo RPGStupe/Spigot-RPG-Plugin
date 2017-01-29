@@ -2,9 +2,9 @@ package de.rpgstupe.rpgplugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -46,10 +46,12 @@ import de.rpgstupe.rpgplugin.database.entities.LocationEntity;
 import de.rpgstupe.rpgplugin.database.entities.MoneyHandlerEntity;
 import de.rpgstupe.rpgplugin.database.entities.PlayerWrapperEntity;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
+import de.rpgstupe.rpgplugin.inventorymenu.InventoryMenu;
 import de.rpgstupe.rpgplugin.player.Character;
+import de.rpgstupe.rpgplugin.player.MoneyHandler;
 import de.rpgstupe.rpgplugin.player.PlayerWrapper;
-import de.rpgstupe.rpgplugin.player.inventory.FakeInventory;
 import de.rpgstupe.rpgplugin.player.inventory.CharacterInventoryHandler;
+import de.rpgstupe.rpgplugin.player.inventory.FakeInventory;
 import de.rpgstupe.rpgplugin.util.BookUtil;
 import de.rpgstupe.rpgplugin.util.NMSUtil;
 import net.minecraft.server.v1_11_R1.World;
@@ -223,9 +225,59 @@ public class Main extends JavaPlugin implements Listener {
 			// Main.getPlayerWrapperFromUUID(p.getUniqueId()).getFakeInventory().setComplete(new
 			// ItemStack[p.getInventory().getSize()]);
 			// } catch (NoSuchPlayerInWrapperListException e) {
-			// // TODO Auto-generated catch block
 			// e.printStackTrace();
 			// }
+		} else if (command.getName().equalsIgnoreCase("rpginventory")) {
+			if (args.length == 1) {
+				if (args[0].equalsIgnoreCase("disable")) {
+					try {
+						PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
+						pw.setDisableFakeInventory(true);
+					} catch (NoSuchPlayerInWrapperListException e) {
+						e.printStackTrace();
+					}
+				} else if (args[0].equalsIgnoreCase("enable")) {
+					try {
+						PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
+						pw.setDisableFakeInventory(false);
+					} catch (NoSuchPlayerInWrapperListException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} else if (command.getName().equalsIgnoreCase("rpgcreate")) {
+			try {
+				PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
+				pw.getCharacters().put(pw.getCharacters().size(), new Character(new MoneyHandler(),
+						ConfigHandler.spawnLocation, new FakeInventory(pw.getPlayer().getInventory().getSize()), null));
+			} catch (NoSuchPlayerInWrapperListException e) {
+				e.printStackTrace();
+			}
+		} else if (command.getName().equalsIgnoreCase("rpgchangecharacter")) {
+			try {
+				PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
+				int num = Integer.parseInt(args[0]);
+				pw.changeCharacter(num);
+			} catch (NoSuchPlayerInWrapperListException e) {
+				e.printStackTrace();
+			}
+		} else if (command.getName().equalsIgnoreCase("rpgchangeinventory")) {
+			try {
+				PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
+				if (pw.isBuildInventoryActive()) {
+					pw.setBuildInventoryActive(false);
+				} else {
+					pw.setBuildInventoryActive(true);
+				}
+			} catch (NoSuchPlayerInWrapperListException e) {
+				e.printStackTrace();
+			}
+		} else if (command.getName().equalsIgnoreCase("rpgcharacterselect")) {
+			try {
+				PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
+				pw.getCharacterSelect().open(p);
+			} catch (NoSuchPlayerInWrapperListException e) {
+			}
 		}
 		return false;
 	}
@@ -373,15 +425,21 @@ public class Main extends JavaPlugin implements Listener {
 		pwe.uuid = p.getUniqueId().toString();
 		pwe.characters = createCharacterSetEntities(pw);
 		pwe.buildInventory = new FakeInventoryEntity(pw.getBuildInventory());
+		pwe.disableFakeInventory = pw.isDisableFakeInventory();
+		pwe.buildInventoryActive = pw.isBuildInventoryActive();
+		pwe.activeCharacter = pw.getActiveCharacter();
 		Main.getDbHandler().savePlayerEntity(pwe);
 	}
 
-	private Set<CharacterEntity> createCharacterSetEntities(PlayerWrapper pw) {
-		Set<CharacterEntity> characters = new HashSet<CharacterEntity>();
-		for (Character c : pw.getCharacters()) {
-			characters.add(new CharacterEntity(new MoneyHandlerEntity(c.getMoneyHandler()),
-					new LocationEntity(c.getRespawnLocation()), new FakeInventoryEntity(c.getCharacterInventory()),
-					c.getExp(), c.getLevel(), c.getDamage(), c.getArmor()));
+	private Map<Integer, CharacterEntity> createCharacterSetEntities(PlayerWrapper pw) {
+		Map<Integer, CharacterEntity> characters = new HashMap<Integer, CharacterEntity>();
+		for (int i = 0; i < pw.getCharacters().size(); i++) {
+			characters.put(i,
+					new CharacterEntity(new MoneyHandlerEntity(pw.getCharacters().get(i).getMoneyHandler()),
+							new LocationEntity(pw.getCharacters().get(i).getRespawnLocation()),
+							new FakeInventoryEntity(pw.getCharacters().get(i).getCharacterInventory()),
+							pw.getCharacters().get(i).getExp(), pw.getCharacters().get(i).getLevel(),
+							pw.getCharacters().get(i).getDamage(), pw.getCharacters().get(i).getArmor()));
 		}
 		return characters;
 	}
@@ -395,13 +453,56 @@ public class Main extends JavaPlugin implements Listener {
 
 	private void addPlayerFromPlayerEntity(Player p) {
 		PlayerWrapperEntity pe = dbHandler.getPlayerEntityByPlayer(p);
+		PlayerWrapper pw;
 		if (pe == null) {
-			PLAYER_WRAPPER_LIST
-					.add(new PlayerWrapper(p, new HashSet<Character>(), new FakeInventory(p.getInventory().getSize())));
+			pw = new PlayerWrapper(p, new HashMap<Integer, Character>(), new FakeInventory(p.getInventory().getSize()),
+					true, false, 0);
+			PLAYER_WRAPPER_LIST.add(pw);
 		} else {
 			FakeInventory buildInventory = new FakeInventory(pe.buildInventory.toFakeInventory());
-			PLAYER_WRAPPER_LIST.add(new PlayerWrapper(p, new HashSet<Character>(), buildInventory));
+			pw = new PlayerWrapper(p, createCharacterMapFromCharacterEntity(pe), buildInventory,
+					pe.buildInventoryActive, pe.disableFakeInventory, pe.activeCharacter);
+			PLAYER_WRAPPER_LIST.add(pw);
 		}
+
+		pw.setCharacterSelect(new InventoryMenu(this, new InventoryMenu.OptionClickEventHandler() {
+			@Override
+			public void onOptionClick(InventoryMenu.OptionClickEvent event) {
+				switch (event.getName()) {
+				case "Create Character":
+					pw.getCharacters().put(pw.getCharacters().size(),
+							new Character(new MoneyHandler(), ConfigHandler.spawnLocation,
+									new FakeInventory(pw.getPlayer().getInventory().getSize()), null));
+					//TODO muss neu connecten, damit es angezeigt wird
+					break;
+				default:
+					pw.changeCharacter(event.getPosition() - 2);
+					break;
+				}
+				event.setWillClose(true);
+			}
+		}, 27, "Character Selection"));
+
+		for (int i = 0; i < 5; i++) {
+			if (pw.getCharacters().get(i) != null) {
+				pw.getCharacterSelect().setOption(2 + i, new ItemStack(Material.IRON_SWORD), "Character Slot " + i,
+						"Open this Character");
+			} else {
+				pw.getCharacterSelect().setOption(2 + i, new ItemStack(Material.PAPER), "Create Character",
+						"Create a new Character");
+			}
+		}
+
+	}
+
+	private Map<Integer, Character> createCharacterMapFromCharacterEntity(PlayerWrapperEntity pe) {
+		Map<Integer, Character> chars = new HashMap<Integer, Character>();
+		if (pe.characters != null) {
+			for (int i = 0; i < pe.characters.size(); i++) {
+				chars.put(i, pe.characters.get(i).toCharacter());
+			}
+		}
+		return chars;
 	}
 
 	private void damageText(Entity entity) {

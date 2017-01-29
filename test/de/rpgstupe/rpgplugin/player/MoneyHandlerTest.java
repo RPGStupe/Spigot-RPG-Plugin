@@ -1,4 +1,4 @@
-package de.rpgstupe.rpgplugin.inventory;
+package de.rpgstupe.rpgplugin.player;
 
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;

@@ -47,14 +47,15 @@ public class CharacterInventoryHandler implements Listener {
 	 */
 	@EventHandler
 	public void onInventoryOpenEventAchievement(PlayerAchievementAwardedEvent event) {
-		// TODO Plugin für einzelne spieler disablen
 		Player p = event.getPlayer();
 		if (event.getAchievement().equals(Achievement.OPEN_INVENTORY)) {
-			event.setCancelled(true);
 			try {
+				event.setCancelled(true);
 				PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
-				pw.setInventoryOpen(true);
-				pw.updatePlayerInventory(0, p.getInventory().getContents().length);
+				if (!pw.isDisableFakeInventory()) {
+					pw.setInventoryOpen(true);
+					pw.updatePlayerInventory(0, p.getInventory().getContents().length);
+				}
 			} catch (NoSuchPlayerInWrapperListException e) {
 				e.printStackTrace();
 			}
@@ -85,13 +86,15 @@ public class CharacterInventoryHandler implements Listener {
 
 		try {
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
-			if (pw.isInventoryOpen()) {
-				pw.getBuildInventory().setComplete(p.getInventory().getContents());
-				clearPlayerInventory(p, 9, 35);
-			}
-			pw.setInventoryOpen(false);
-			if (!Material.AIR.equals(event.getPlayer().getItemOnCursor().getType())) {
-				pw.setDropNextItem(true);
+			if (!pw.isDisableFakeInventory()) {
+				if (pw.isInventoryOpen()) {
+					pw.getActiveInventory().setComplete(p.getInventory().getContents());
+					clearPlayerInventory(p, 9, 35);
+				}
+				pw.setInventoryOpen(false);
+				if (!Material.AIR.equals(event.getPlayer().getItemOnCursor().getType())) {
+					pw.setDropNextItem(true);
+				}
 			}
 		} catch (NoSuchPlayerInWrapperListException e) {
 			e.printStackTrace();
@@ -106,24 +109,33 @@ public class CharacterInventoryHandler implements Listener {
 	 */
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
-		if (event.getRawSlot() >= 1 && event.getRawSlot() <= 4) {
-			event.setCancelled(true);
-		}
-		if (ClickType.SHIFT_LEFT.equals(event.getClick()) || ClickType.SHIFT_RIGHT.equals(event.getClick())) {
-			event.setCancelled(true);
-		}
-		if (ConfigHandler.moneySlotsUsed) {
-			if (ConfigHandler.moneySmallSlot == event.getSlot() || ConfigHandler.moneyMediumSlot == event.getSlot()
-					|| ConfigHandler.moneyLargeSlot == event.getSlot()) {
-				event.setCancelled(true);
+		Player p = (Player) event.getWhoClicked();
+		try {
+			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
+			if (!pw.isDisableFakeInventory()) {
+				if (event.getRawSlot() >= 1 && event.getRawSlot() <= 4) {
+					event.setCancelled(true);
+				}
+				if (ClickType.SHIFT_LEFT.equals(event.getClick()) || ClickType.SHIFT_RIGHT.equals(event.getClick())) {
+					event.setCancelled(true);
+				}
+				if (ConfigHandler.moneySlotsUsed) {
+					if (ConfigHandler.moneySmallSlot == event.getSlot()
+							|| ConfigHandler.moneyMediumSlot == event.getSlot()
+							|| ConfigHandler.moneyLargeSlot == event.getSlot()) {
+						event.setCancelled(true);
+					}
+				}
+				if (event.getCurrentItem() != null) {
+					if (ConfigHandler.moneySmallItem.equals(event.getCurrentItem().getType().name())
+							|| ConfigHandler.moneyMediumItem.equals(event.getCurrentItem().getType().name())
+							|| ConfigHandler.moneyLargeItem.equals(event.getCurrentItem().getType().name())) {
+						event.setCancelled(true);
+					}
+				}
 			}
-		}
-		if (event.getCurrentItem() != null) {
-			if (ConfigHandler.moneySmallItem.equals(event.getCurrentItem().getType().name())
-					|| ConfigHandler.moneyMediumItem.equals(event.getCurrentItem().getType().name())
-					|| ConfigHandler.moneyLargeItem.equals(event.getCurrentItem().getType().name())) {
-				event.setCancelled(true);
-			}
+		} catch (NoSuchPlayerInWrapperListException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -135,16 +147,24 @@ public class CharacterInventoryHandler implements Listener {
 	 */
 	@EventHandler
 	public void onInventoryDrag(InventoryDragEvent event) {
-		if (event.getRawSlots().contains(1) || event.getRawSlots().contains(2) || event.getRawSlots().contains(3)
-				|| event.getRawSlots().contains(4)) {
-			event.setCancelled(true);
-		}
-		if (ConfigHandler.moneySlotsUsed) {
-			if (event.getInventorySlots().contains(ConfigHandler.moneySmallSlot)
-					|| event.getInventorySlots().contains(ConfigHandler.moneyMediumSlot)
-					|| event.getInventorySlots().contains(ConfigHandler.moneyLargeSlot)) {
-				event.setCancelled(true);
+		Player p = (Player) event.getWhoClicked();
+		try {
+			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
+			if (!pw.isDisableFakeInventory()) {
+				if (event.getRawSlots().contains(1) || event.getRawSlots().contains(2)
+						|| event.getRawSlots().contains(3) || event.getRawSlots().contains(4)) {
+					event.setCancelled(true);
+				}
+				if (ConfigHandler.moneySlotsUsed) {
+					if (event.getInventorySlots().contains(ConfigHandler.moneySmallSlot)
+							|| event.getInventorySlots().contains(ConfigHandler.moneyMediumSlot)
+							|| event.getInventorySlots().contains(ConfigHandler.moneyLargeSlot)) {
+						event.setCancelled(true);
+					}
+				}
 			}
+		} catch (NoSuchPlayerInWrapperListException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -171,39 +191,42 @@ public class CharacterInventoryHandler implements Listener {
 	 */
 	@EventHandler
 	public void onItemPickup(PlayerPickupItemEvent event) {
-		event.setCancelled(true);
 		try {
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
-			if (!pw.isInventoryOpen()) {
-				// Special treatment if item is of type money
-				if (isItemTypeMoney(event.getItem().getItemStack())) {
-					// TODO Does not work as intended when Money does not fit
-					// into
-					// the inventory
-//					ConfigHandler.mergeMoneyIntoPlayerWrapper(pw,
-//							ConfigHandler.moneySmallItem.equals(event.getItem().getItemStack().getType().name())
-//									? event.getItem().getItemStack().getAmount() : 0,
-//							ConfigHandler.moneyMediumItem.equals(event.getItem().getItemStack().getType().name())
-//									? event.getItem().getItemStack().getAmount() : 0,
-//							ConfigHandler.moneyLargeItem.equals(event.getItem().getItemStack().getType().name())
-//									? event.getItem().getItemStack().getAmount() : 0);
-//					pw.setMoneyInFakeInv();
-					
-					
-					event.getItem().remove();
-					// Custom pickup sound
-					event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5F, 4F);
-				} else {
-					CustomItemStack cStack = new CustomItemStack();
-					cStack.setItemStack(event.getItem().getItemStack());
-					if (pw.getBuildInventory().isCustomItemStackFitInInventory(cStack)) {
+			if (!pw.isDisableFakeInventory()) {
+				event.setCancelled(true);
+				if (!pw.isInventoryOpen()) {
+					// Special treatment if item is of type money
+					if (isItemTypeMoney(event.getItem().getItemStack())) {
+						// TODO Does not work as intended when Money does not
+						// fit
+						// into
+						// the inventory
+						// ConfigHandler.mergeMoneyIntoPlayerWrapper(pw,
+						// ConfigHandler.moneySmallItem.equals(event.getItem().getItemStack().getType().name())
+						// ? event.getItem().getItemStack().getAmount() : 0,
+						// ConfigHandler.moneyMediumItem.equals(event.getItem().getItemStack().getType().name())
+						// ? event.getItem().getItemStack().getAmount() : 0,
+						// ConfigHandler.moneyLargeItem.equals(event.getItem().getItemStack().getType().name())
+						// ? event.getItem().getItemStack().getAmount() : 0);
+						// pw.setMoneyInFakeInv();
+
 						event.getItem().remove();
 						// Custom pickup sound
 						event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5F,
-								1.2F);
-						pw.getBuildInventory().addCustomItemStack(cStack);
-						// update only the hotbar
-						pw.updatePlayerInventory(0, 8);
+								4F);
+					} else {
+						CustomItemStack cStack = new CustomItemStack();
+						cStack.setItemStack(event.getItem().getItemStack());
+						if (pw.getActiveInventory().isCustomItemStackFitInInventory(cStack)) {
+							event.getItem().remove();
+							// Custom pickup sound
+							event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5F,
+									1.2F);
+							pw.getActiveInventory().addCustomItemStack(cStack);
+							// update only the hotbar
+							pw.updatePlayerInventory(0, 9);
+						}
 					}
 				}
 			}
@@ -222,17 +245,17 @@ public class CharacterInventoryHandler implements Listener {
 	public void onItemDrop(PlayerDropItemEvent event) {
 		try {
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
-
-			if (!pw.isInventoryOpen()) {
-				// TODO 1 Stack Amount Item Dropped (Q)????
-				if (pw.isDropNextItem()) {
-					pw.getBuildInventory().setComplete(event.getPlayer().getInventory().getContents());
-					pw.setDropNextItem(false);
+			if (!pw.isDisableFakeInventory()) {
+				if (!pw.isInventoryOpen()) {
+					if (pw.isDropNextItem()) {
+						pw.getActiveInventory().setComplete(event.getPlayer().getInventory().getContents());
+						pw.setDropNextItem(false);
+					} else {
+						event.setCancelled(true);
+					}
 				} else {
-					event.setCancelled(true);
+					pw.getActiveInventory().setComplete(event.getPlayer().getInventory().getContents());
 				}
-			} else {
-				pw.getBuildInventory().setComplete(event.getPlayer().getInventory().getContents());
 			}
 		} catch (NoSuchPlayerInWrapperListException e) {
 			e.printStackTrace();

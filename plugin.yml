@@ -8,8 +8,33 @@ commands:
   rpgclearinv:
     description: An example command
     usage: /rpgclearinv
-    permission: myplugin.mycommand
-    permission-message: You don't have the myplugin.mycommand permission.
+    permission: myplugin.rpgclearinv
+    permission-message: You don't have the myplugin.rpgclearinv permission.
+  rpginventory:
+    description: An example command
+    usage: /rpginventory
+    permission: myplugin.rpginventory
+    permission-message: You don't have the myplugin.rpginventory permission.
+  rpgcharacterselect:
+    description: An example command
+    usage: /rpgcharacterselect
+    permission: myplugin.rpgcharacterselect
+    permission-message: You don't have the myplugin.rpgcharacterselect permission.
+  rpgcreate:
+    description: An example command
+    usage: /rpgcreate
+    permission: myplugin.rpgcreate
+    permission-message: You don't have the myplugin.rpgcreate permission.
+  rpgchangeinventory:
+    description: An example command
+    usage: /rpgchangeinventory
+    permission: myplugin.rpgchangeinventory
+    permission-message: You don't have the myplugin.rpgchangeinventory permission.
+  rpgchangecharacter:
+    description: An example command
+    usage: /rpgchangecharacter
+    permission: myplugin.rpgchangecharacter
+    permission-message: You don't have the myplugin.rpgchangecharacter permission.
   mycommand:
     description: An example command
     usage: /mycommand

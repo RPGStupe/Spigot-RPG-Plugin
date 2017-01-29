@@ -1,7 +1,7 @@
 package de.rpgstupe.rpgplugin.database.entities;
 
 
-import java.util.Set;
+import java.util.Map;
 
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Embedded;
@@ -22,8 +22,14 @@ public class PlayerWrapperEntity {
 	public String ip;
 	
 	@Embedded
-	public Set<CharacterEntity> characters;
+	public Map<Integer, CharacterEntity> characters;
 	
 	@Embedded
 	public FakeInventoryEntity buildInventory;
+
+	public boolean buildInventoryActive;
+	
+	public boolean disableFakeInventory;
+	
+	public int activeCharacter;
 }

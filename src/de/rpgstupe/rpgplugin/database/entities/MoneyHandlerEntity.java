@@ -26,4 +26,8 @@ public class MoneyHandlerEntity {
 		this.moneyMediumAmount = moneyMediumAmount;
 		this.moneyLargeAmount = moneyLargeAmount;
 	}
+
+	public MoneyHandler toMoneyHandler() {
+		return new MoneyHandler(moneySmallAmount, moneyMediumAmount, moneyLargeAmount);
+	}
 }

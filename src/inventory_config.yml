@@ -25,7 +25,7 @@ money:
     money_small_durability: 1
     money_medium_durability: 2
     money_large_durability: 3
-    unbreaking: true # 1 if the tool will have unbreaking
+    unbreaking: true
   exchangerate:
     small_to_medium: 100
     medium_to_large: 100

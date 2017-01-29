@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -34,6 +35,7 @@ public class ConfigHandler {
 	public static int moneyLargeSlot;
 	public static boolean moneySlotsUsed;
 	public static int healthPotionsMaxAmount;
+	public static Location spawnLocation;
 
 	
 	
@@ -92,5 +94,7 @@ public class ConfigHandler {
 		ConfigHandler.moneySlotsUsed = config.getBoolean("inventory.slots.use_money_slots");
 		
 		ConfigHandler.healthPotionsMaxAmount = config.getInt("inventory.items.max_amount_healthpotion");
+		
+		ConfigHandler.spawnLocation = new Location(Bukkit.getWorld("world"), 5000, 5000, 5000);
 	}
 }

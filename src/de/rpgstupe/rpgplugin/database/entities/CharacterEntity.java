@@ -1,6 +1,7 @@
 package de.rpgstupe.rpgplugin.database.entities;
 
 import org.mongodb.morphia.annotations.Id;
+import de.rpgstupe.rpgplugin.player.Character;
 
 public class CharacterEntity {
 	@Id
@@ -29,5 +30,10 @@ public class CharacterEntity {
 		this.level = level;
 		this.damage = damage;
 		this.armor = armor;
+	}
+
+	public Character toCharacter() {
+		Character character = new Character(moneyHandler.toMoneyHandler(), respawnLocation.toLocation(), characterInventory.toFakeInventory(), null, exp, level, damage, armor);
+		return character;
 	}
 }
