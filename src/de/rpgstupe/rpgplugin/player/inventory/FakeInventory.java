@@ -165,41 +165,8 @@ public class FakeInventory {
 			inventoryArray[first(new CustomItemStack())] = tempStack;
 		}
 	}
-
+	
 	private void updateMaxStackSizes() {
-		for (CustomItemStack stack : inventoryArray) {
-			switch (stack.getType()) {
-			case NORMAL:
-				stack.setMaxStackSize(stack.getItemStack().getMaxStackSize());
-				break;
-			case MONEY_SMALL:
-				stack.setMaxStackSize(ConfigHandler.moneySmallExchangeRate);
-				break;
-			case MONEY_MEDIUM:
-				stack.setMaxStackSize(ConfigHandler.moneyMediumExchangeRate);
-				break;
-			case MONEY_LARGE:
-				stack.setMaxStackSize(ConfigHandler.moneyLargeMaxAmount);
-				break;
-			case SPELL:
-				stack.setMaxStackSize(127);
-				break;
-			case HEALTHPOTION:
-				stack.setMaxStackSize(ConfigHandler.healthPotionsMaxAmount);
-				break;
-			case ARMOR:
-				stack.setMaxStackSize(1);
-				break;
-			case WEAPON:
-				stack.setMaxStackSize(1);
-				break;
-			case NULL:
-				stack.setMaxStackSize(64);
-				break;
-			default:
-				stack.setMaxStackSize(0);
-				break;
-			}
-		}
+		//TODO NBT Tags
 	}
 }

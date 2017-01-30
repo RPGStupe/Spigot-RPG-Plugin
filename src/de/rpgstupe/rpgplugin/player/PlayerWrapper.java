@@ -1,14 +1,12 @@
 package de.rpgstupe.rpgplugin.player;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
-import de.rpgstupe.rpgplugin.inventorymenu.EnumInventoryMenu;
+import de.rpgstupe.rpgplugin.SpecialItemCreation;
 import de.rpgstupe.rpgplugin.inventorymenu.InventoryMenu;
 import de.rpgstupe.rpgplugin.player.inventory.FakeInventory;
 
@@ -22,7 +20,7 @@ public class PlayerWrapper {
 	}
 
 	private Player player;
-	private Map<Integer, Character> characters;
+	private List<Character> characters;
 	private int activeCharacter;
 	private boolean dropNextItem = false;
 	private boolean inventoryOpen = false;
@@ -34,12 +32,17 @@ public class PlayerWrapper {
 
 	// Constructor to pass on the player object
 	public PlayerWrapper(Player player) {
-		this(player, new HashMap<Integer, Character>(), new FakeInventory(player.getInventory().getSize()), true, false,
+		this(player, new ArrayList<>(), new FakeInventory(player.getInventory().getSize()), true, false,
 				0);
 	}
 
-	public PlayerWrapper(Player player, Map<Integer, Character> characters, FakeInventory buildInventory,
+	public PlayerWrapper(Player player, List<Character> characters, FakeInventory buildInventory,
 			boolean buildInventoryActive, boolean disableFakeInventory, int activeCharacter) {
+		if (characters.size() == 0) {
+			for (int i = 0; i < 5; i++) {
+				characters.add(null);
+			}
+		}
 		this.player = player;
 		this.characters = characters;
 		this.buildInventory = buildInventory;
@@ -51,6 +54,8 @@ public class PlayerWrapper {
 		} else {
 			this.setActiveInventory(this.characters.get(this.activeCharacter).getCharacterInventory());
 		}
+		this.buildInventory.set(7, SpecialItemCreation.createHearthstone());
+		this.buildInventory.set(8, SpecialItemCreation.createCompassMenu());
 	}
 
 	public void updatePlayerInventory(int fromId, int toId) {
@@ -78,7 +83,7 @@ public class PlayerWrapper {
 		return player;
 	}
 
-	public Map<Integer, Character> getCharacters() {
+	public List<Character> getCharacters() {
 		return characters;
 	}
 
@@ -141,6 +146,6 @@ public class PlayerWrapper {
 	}
 
 	public void deleteCharacter(int index) {
-		this.characters.remove(index);
+		this.characters.set(index, null);
 	}
 }

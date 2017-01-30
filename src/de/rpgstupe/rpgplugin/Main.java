@@ -2,9 +2,7 @@ package de.rpgstupe.rpgplugin;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -248,7 +246,7 @@ public class Main extends JavaPlugin implements Listener {
 		} else if (command.getName().equalsIgnoreCase("rpgcreate")) {
 			try {
 				PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
-				pw.getCharacters().put(pw.getCharacters().size(), new Character(new MoneyHandler(),
+				pw.getCharacters().set(pw.getCharacters().size(), new Character(new MoneyHandler(),
 						ConfigHandler.spawnLocation, new FakeInventory(pw.getPlayer().getInventory().getSize()), null));
 			} catch (NoSuchPlayerInWrapperListException e) {
 				e.printStackTrace();
@@ -431,15 +429,19 @@ public class Main extends JavaPlugin implements Listener {
 		Main.getDbHandler().savePlayerEntity(pwe);
 	}
 
-	private Map<Integer, CharacterEntity> createCharacterSetEntities(PlayerWrapper pw) {
-		Map<Integer, CharacterEntity> characters = new HashMap<Integer, CharacterEntity>();
+	private List<CharacterEntity> createCharacterSetEntities(PlayerWrapper pw) {
+		List<CharacterEntity> characters = new ArrayList<CharacterEntity>();
 		for (int i = 0; i < pw.getCharacters().size(); i++) {
-			characters.put(i,
-					new CharacterEntity(new MoneyHandlerEntity(pw.getCharacters().get(i).getMoneyHandler()),
-							new LocationEntity(pw.getCharacters().get(i).getRespawnLocation()),
-							new FakeInventoryEntity(pw.getCharacters().get(i).getCharacterInventory()),
-							pw.getCharacters().get(i).getExp(), pw.getCharacters().get(i).getLevel(),
-							pw.getCharacters().get(i).getDamage(), pw.getCharacters().get(i).getArmor()));
+			if (pw.getCharacters().get(i) != null) {
+				characters.add(i,
+						new CharacterEntity(new MoneyHandlerEntity(pw.getCharacters().get(i).getMoneyHandler()),
+								new LocationEntity(pw.getCharacters().get(i).getRespawnLocation()),
+								new FakeInventoryEntity(pw.getCharacters().get(i).getCharacterInventory()),
+								pw.getCharacters().get(i).getExp(), pw.getCharacters().get(i).getLevel(),
+								pw.getCharacters().get(i).getDamage(), pw.getCharacters().get(i).getArmor()));
+			} else {
+				characters.add(i, null);
+			}
 		}
 		return characters;
 	}
@@ -455,8 +457,8 @@ public class Main extends JavaPlugin implements Listener {
 		PlayerWrapperEntity pe = dbHandler.getPlayerEntityByPlayer(p);
 		PlayerWrapper pw;
 		if (pe == null) {
-			pw = new PlayerWrapper(p, new HashMap<Integer, Character>(), new FakeInventory(p.getInventory().getSize()),
-					true, false, 0);
+			pw = new PlayerWrapper(p, new ArrayList<Character>(), new FakeInventory(p.getInventory().getSize()), true,
+					false, 0);
 			PLAYER_WRAPPER_LIST.add(pw);
 		} else {
 			FakeInventory buildInventory = new FakeInventory(pe.buildInventory.toFakeInventory());
@@ -470,16 +472,20 @@ public class Main extends JavaPlugin implements Listener {
 			public void onOptionClick(InventoryMenu.OptionClickEvent event) {
 				switch (event.getName()) {
 				case "Create Character":
-					pw.getCharacters().put(pw.getCharacters().size(),
+					pw.getCharacters().set(event.getPosition() - 2,
 							new Character(new MoneyHandler(), ConfigHandler.spawnLocation,
 									new FakeInventory(pw.getPlayer().getInventory().getSize()), null));
-					pw.getCharacterSelect().setOption(2 + pw.getCharacters().size() - 1, new ItemStack(Material.IRON_SWORD),
-							"Character Slot " + (pw.getCharacters().size() - 1), "Open this Character");
-					pw.getCharacterSelect().setOption(11 + pw.getCharacters().size() - 1, new ItemStack(Material.BARRIER),
-							"Delete Character", "Delete this Character");
+					pw.getCharacterSelect().setOption(event.getPosition(),
+							new ItemStack(Material.IRON_SWORD), "Character Slot " + (pw.getCharacters().size() - 1),
+							"Open this Character");
+					pw.getCharacterSelect().setOption(event.getPosition() + 9,
+							new ItemStack(Material.BARRIER), "Delete Character", "Delete this Character");
 					break;
 				case "Delete Character":
-					pw.deleteCharacter(event.getPosition() - 2);
+					pw.deleteCharacter(event.getPosition() - 11);
+					pw.getCharacterSelect().removeOption(event.getPosition());
+					pw.getCharacterSelect().setOption(event.getPosition() - 9, new ItemStack(Material.PAPER),
+							"Create Character", "Create a new Character");
 					break;
 				default:
 					pw.changeCharacter(event.getPosition() - 2);
@@ -493,8 +499,8 @@ public class Main extends JavaPlugin implements Listener {
 			if (pw.getCharacters().get(i) != null) {
 				pw.getCharacterSelect().setOption(2 + i, new ItemStack(Material.IRON_SWORD), "Character Slot " + i,
 						"Open this Character");
-				pw.getCharacterSelect().setOption(11 + i, new ItemStack(Material.BARRIER),
-						"Delete Character", "Delete this Character");
+				pw.getCharacterSelect().setOption(11 + i, new ItemStack(Material.BARRIER), "Delete Character",
+						"Delete this Character");
 			} else {
 				pw.getCharacterSelect().setOption(2 + i, new ItemStack(Material.PAPER), "Create Character",
 						"Create a new Character");
@@ -503,11 +509,15 @@ public class Main extends JavaPlugin implements Listener {
 
 	}
 
-	private Map<Integer, Character> createCharacterMapFromCharacterEntity(PlayerWrapperEntity pe) {
-		Map<Integer, Character> chars = new HashMap<Integer, Character>();
+	private List<Character> createCharacterMapFromCharacterEntity(PlayerWrapperEntity pe) {
+		List<Character> chars = new ArrayList<Character>();
 		if (pe.characters != null) {
 			for (int i = 0; i < pe.characters.size(); i++) {
-				chars.put(i, pe.characters.get(i).toCharacter());
+				if (pe.characters.get(i) == null) {
+					chars.add(i, null);
+				} else {
+					chars.add(i, pe.characters.get(i).toCharacter());
+				}
 			}
 		}
 		return chars;

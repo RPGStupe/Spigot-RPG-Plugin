@@ -6,6 +6,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -14,12 +15,14 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerAchievementAwardedEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import de.rpgstupe.rpgplugin.Main;
+import de.rpgstupe.rpgplugin.SpecialItemCreation;
 import de.rpgstupe.rpgplugin.configuration.ConfigHandler;
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
@@ -126,16 +129,32 @@ public class CharacterInventoryHandler implements Listener {
 						event.setCancelled(true);
 					}
 				}
-				if (event.getCurrentItem() != null) {
-					if (ConfigHandler.moneySmallItem.equals(event.getCurrentItem().getType().name())
-							|| ConfigHandler.moneyMediumItem.equals(event.getCurrentItem().getType().name())
-							|| ConfigHandler.moneyLargeItem.equals(event.getCurrentItem().getType().name())) {
-						event.setCancelled(true);
-					}
+				if (pw.getActiveInventory().getIndex(event.getSlot()).getBoolean("notmoveable")) {
+					event.setCancelled(true);
 				}
+
 			}
 		} catch (NoSuchPlayerInWrapperListException e) {
 			e.printStackTrace();
+		}
+	}
+
+	@EventHandler
+	public void onplayerInteraction(PlayerInteractEvent event) {
+		Player p = event.getPlayer();
+
+		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			CustomItemStack stackInHand = new CustomItemStack(p.getInventory().getItemInMainHand());
+			if (stackInHand.hasKey("type")) {
+				switch (stackInHand.getString("type")) {
+				case "compassmenu":
+					// TODO COMPASSMENU
+					break;
+				case "teleporter":
+					// TODO TELEPORTER
+					break;
+				}
+			}
 		}
 	}
 

@@ -3,6 +3,7 @@ package de.rpgstupe.rpgplugin.player;
 import org.bukkit.Location;
 
 import de.rpgstupe.rpgplugin.RPGClass;
+import de.rpgstupe.rpgplugin.SpecialItemCreation;
 import de.rpgstupe.rpgplugin.player.inventory.FakeInventory;
 
 public class Character {
@@ -30,6 +31,8 @@ public class Character {
 		this.level = level;
 		this.damage = damage;
 		this.armor = armor;
+		this.characterInventory.set(7, SpecialItemCreation.createHearthstone());
+		this.characterInventory.set(8, SpecialItemCreation.createCompassMenu());
 	}
 
 	public MoneyHandler getMoneyHandler() {
