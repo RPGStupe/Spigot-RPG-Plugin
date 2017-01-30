@@ -139,4 +139,8 @@ public class PlayerWrapper {
 	public void setActiveInventory(FakeInventory activeInventory) {
 		this.activeInventory = activeInventory;
 	}
+
+	public void deleteCharacter(int index) {
+		this.characters.remove(index);
+	}
 }

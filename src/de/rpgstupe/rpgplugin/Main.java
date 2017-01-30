@@ -473,7 +473,13 @@ public class Main extends JavaPlugin implements Listener {
 					pw.getCharacters().put(pw.getCharacters().size(),
 							new Character(new MoneyHandler(), ConfigHandler.spawnLocation,
 									new FakeInventory(pw.getPlayer().getInventory().getSize()), null));
-					//TODO muss neu connecten, damit es angezeigt wird
+					pw.getCharacterSelect().setOption(2 + pw.getCharacters().size() - 1, new ItemStack(Material.IRON_SWORD),
+							"Character Slot " + (pw.getCharacters().size() - 1), "Open this Character");
+					pw.getCharacterSelect().setOption(11 + pw.getCharacters().size() - 1, new ItemStack(Material.BARRIER),
+							"Delete Character", "Delete this Character");
+					break;
+				case "Delete Character":
+					pw.deleteCharacter(event.getPosition() - 2);
 					break;
 				default:
 					pw.changeCharacter(event.getPosition() - 2);
@@ -487,6 +493,8 @@ public class Main extends JavaPlugin implements Listener {
 			if (pw.getCharacters().get(i) != null) {
 				pw.getCharacterSelect().setOption(2 + i, new ItemStack(Material.IRON_SWORD), "Character Slot " + i,
 						"Open this Character");
+				pw.getCharacterSelect().setOption(11 + i, new ItemStack(Material.BARRIER),
+						"Delete Character", "Delete this Character");
 			} else {
 				pw.getCharacterSelect().setOption(2 + i, new ItemStack(Material.PAPER), "Create Character",
 						"Create a new Character");
