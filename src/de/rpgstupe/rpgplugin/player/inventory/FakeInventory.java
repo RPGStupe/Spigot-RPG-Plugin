@@ -1,9 +1,14 @@
 package de.rpgstupe.rpgplugin.player.inventory;
 
+import java.util.Set;
+
+import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
-import de.rpgstupe.rpgplugin.configuration.ConfigHandler;
+import de.rpgstupe.rpgplugin.configuration.InventoryConfigHandler;
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
+import net.minecraft.server.v1_11_R1.NBTTagCompound;
 
 public class FakeInventory {
 	public CustomItemStack[] getInventoryArray() {
@@ -36,8 +41,8 @@ public class FakeInventory {
 	public boolean isCustomItemStackFitInInventory(CustomItemStack itemStack) {
 		int stackSize = itemStack.getItemStack().getAmount();
 		for (int i = 0; i < inventorySize; i++) {
-			if (ConfigHandler.moneySlotsUsed && i != ConfigHandler.moneySmallSlot && i != ConfigHandler.moneyMediumSlot
-					&& i != ConfigHandler.moneyLargeSlot) {
+			if (InventoryConfigHandler.moneySlotsUsed && i != InventoryConfigHandler.moneySmallSlot && i != InventoryConfigHandler.moneyMediumSlot
+					&& i != InventoryConfigHandler.moneyLargeSlot) {
 				if (inventoryArray[i].getItemStack() == null) {
 					stackSize -= itemStack.getItemStack().getMaxStackSize();
 				} else if (inventoryArray[i].getItemStack() != null
@@ -118,12 +123,50 @@ public class FakeInventory {
 			if (stacks[i] != null) {
 				CustomItemStack cStack = new CustomItemStack();
 				cStack.setItemStack(new ItemStack(stacks[i]));
+				updateNBTTags(cStack, stacks[i]);
 				inventoryArray[i] = cStack;
 			} else {
 				inventoryArray[i].setItemStack(null);
 			}
 		}
 		updateMaxStackSizes();
+	}
+
+	public void updateAllNBTTags() {
+		for (int i = 0; i < this.inventorySize; i++) {
+			if (this.getIndex(i).getItemStack() != null) {
+				System.out.println(this.getIndex(i).getMaxStackSize());
+				updateNBTTags(this.getIndex(i), this.getIndex(i).getItemStack());
+			}
+		}
+	}
+
+	private void updateNBTTags(CustomItemStack cstack, ItemStack stack) {
+		if (cstack.getCustomNBTTags() != null) {
+			CraftItemStack craftItemStack = CraftItemStack.asCraftCopy(stack);
+			if (craftItemStack.getType() != Material.AIR) {
+				net.minecraft.server.v1_11_R1.ItemStack nmsItemStack = CraftItemStack.asNMSCopy(craftItemStack);
+				NBTTagCompound compound = nmsItemStack.getTag();
+				if (compound == null) {
+					nmsItemStack.setTag(compound = new NBTTagCompound());
+				}
+				Set<String> keys = compound.c();
+				for (String key : keys) {
+					if (!"display".equals(key) && !"description".equals(key)) {
+						if (compound.get(key).getTypeId() == 8) {
+							cstack.setString(key.toString(), compound.getString(key));
+						} else if (compound.get(key).getTypeId() == 1) {
+							cstack.setBoolean(key, compound.getByte(key) != 0);
+						}
+					}
+				}
+
+				// Do whatever with your NBT data
+
+				// System.out.println(compound.toString());
+				nmsItemStack.setTag(compound);
+			}
+		}
 	}
 
 	public int getInventorySize() {
@@ -165,8 +208,8 @@ public class FakeInventory {
 			inventoryArray[first(new CustomItemStack())] = tempStack;
 		}
 	}
-	
+
 	private void updateMaxStackSizes() {
-		//TODO NBT Tags
+		// TODO NBT Tags
 	}
 }

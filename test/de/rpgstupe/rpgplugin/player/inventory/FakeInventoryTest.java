@@ -7,7 +7,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import de.rpgstupe.rpgplugin.configuration.ConfigHandler;
+import de.rpgstupe.rpgplugin.configuration.InventoryConfigHandler;
 
 public class FakeInventoryTest {
 
@@ -22,12 +22,10 @@ public class FakeInventoryTest {
 			Material material2, Material material3, Material material4, Material material5,
 			Material materialFit) {
 
-		ConfigHandler.moneySmallSlot = 1;
-		ConfigHandler.moneyMediumSlot = 2;
-		ConfigHandler.moneyLargeSlot = 3;
-		ConfigHandler.moneySlotsUsed = true;
-
-
+		InventoryConfigHandler.moneySmallSlot = 1;
+		InventoryConfigHandler.moneyMediumSlot = 2;
+		InventoryConfigHandler.moneyLargeSlot = 3;
+		InventoryConfigHandler.moneySlotsUsed = true;
 		FakeInventory inventory = new FakeInventory(5);
 		
 		ItemStack stack = Mockito.spy(new ItemStack(material1));

@@ -4,8 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import de.rpgstupe.rpgplugin.configuration.ConfigHandler;
-import de.rpgstupe.rpgplugin.player.MoneyHandler;
+import de.rpgstupe.rpgplugin.configuration.InventoryConfigHandler;
 
 public class MoneyHandlerTest {
 
@@ -23,9 +22,9 @@ public class MoneyHandlerTest {
 			int smallAmount, int mediumAmount, int largeAmount, int addSmall, int addMedium, int addLarge,
 			int expectedSmallAmount, int expectedMediumAmount, int expectedLargeAmount) {
 
-		ConfigHandler.moneySmallExchangeRate = smallExchangeRate;
-		ConfigHandler.moneyMediumExchangeRate = mediumExchangeRate;
-		ConfigHandler.moneyLargeMaxAmount = largeMaxAmount;
+		InventoryConfigHandler.moneySmallExchangeRate = smallExchangeRate;
+		InventoryConfigHandler.moneyMediumExchangeRate = mediumExchangeRate;
+		InventoryConfigHandler.moneyLargeMaxAmount = largeMaxAmount;
 
 		MoneyHandler moneyHandler = new MoneyHandler(smallAmount, mediumAmount, largeAmount);
 		moneyHandler.add(addSmall, addMedium, addLarge);

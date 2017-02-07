@@ -17,7 +17,6 @@ public class FakeInventoryEntity {
 	
 	public FakeInventoryEntity(FakeInventory characterInventory) {
 		inventoryArray = new CustomItemStackEntity[characterInventory.getInventorySize()];
-		System.out.println(characterInventory.toString());
 		for (int i = 0; i < characterInventory.getInventorySize(); i++) {
 			inventoryArray[i] = new CustomItemStackEntity(characterInventory.getIndex(i));
 		}

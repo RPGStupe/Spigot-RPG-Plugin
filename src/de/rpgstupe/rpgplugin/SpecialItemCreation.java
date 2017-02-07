@@ -24,6 +24,7 @@ public class SpecialItemCreation {
 		meta.setLore(lore);
 		meta.setDisplayName("Hearthstone");
 		hearthstone.getItemStack().setItemMeta(meta);
+		hearthstone.setMaxStackSize(1);
 		return hearthstone;
 	}
 	
@@ -38,6 +39,7 @@ public class SpecialItemCreation {
 		meta.setLore(lore);
 		meta.setDisplayName("Compass Menu");
 		compassMenu.getItemStack().setItemMeta(meta);
+		compassMenu.setMaxStackSize(1);
 		return compassMenu;
 	}
 }

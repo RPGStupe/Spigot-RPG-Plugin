@@ -2,12 +2,12 @@
 <testng-results skipped="0" failed="1" total="1" passed="0">
   <reporter-output>
   </reporter-output>
-  <suite name="Default suite" duration-ms="256" started-at="2017-01-29T02:20:27Z" finished-at="2017-01-29T02:20:28Z">
+  <suite name="Default suite" duration-ms="293" started-at="2017-02-07T19:15:06Z" finished-at="2017-02-07T19:15:06Z">
     <groups>
     </groups>
-    <test name="Default test" duration-ms="256" started-at="2017-01-29T02:20:27Z" finished-at="2017-01-29T02:20:28Z">
+    <test name="Default test" duration-ms="293" started-at="2017-02-07T19:15:06Z" finished-at="2017-02-07T19:15:06Z">
       <class name="de.rpgstupe.rpgplugin.player.inventory.FakeInventoryTest">
-        <test-method status="FAIL" signature="isCustomItemStackFitInInventoryShouldReturnFalseForInvalidCases(org.bukkit.Material, org.bukkit.Material, org.bukkit.Material, org.bukkit.Material, org.bukkit.Material, org.bukkit.Material)[pri:0, instance:de.rpgstupe.rpgplugin.player.inventory.FakeInventoryTest@4df50bcc]" name="isCustomItemStackFitInInventoryShouldReturnFalseForInvalidCases" duration-ms="136" started-at="2017-01-29T03:20:28Z" data-provider="dp" finished-at="2017-01-29T03:20:28Z">
+        <test-method status="FAIL" signature="isCustomItemStackFitInInventoryShouldReturnFalseForInvalidCases(org.bukkit.Material, org.bukkit.Material, org.bukkit.Material, org.bukkit.Material, org.bukkit.Material, org.bukkit.Material)[pri:0, instance:de.rpgstupe.rpgplugin.player.inventory.FakeInventoryTest@4df50bcc]" name="isCustomItemStackFitInInventoryShouldReturnFalseForInvalidCases" duration-ms="168" started-at="2017-02-07T20:15:06Z" data-provider="dp" finished-at="2017-02-07T20:15:06Z">
           <params>
             <param index="0">
               <value>
@@ -46,8 +46,8 @@
 	at org.bukkit.Bukkit.getItemFactory(Bukkit.java:1036)
 	at org.bukkit.inventory.ItemStack.hasItemMeta(ItemStack.java:577)
 	at org.bukkit.inventory.ItemStack.isSimilar(ItemStack.java:338)
-	at de.rpgstupe.rpgplugin.player.inventory.FakeInventory.isCustomItemStackFitInInventory(FakeInventory.java:47)
-	at de.rpgstupe.rpgplugin.player.inventory.FakeInventoryTest.isCustomItemStackFitInInventoryShouldReturnFalseForInvalidCases(FakeInventoryTest.java:56)
+	at de.rpgstupe.rpgplugin.player.inventory.FakeInventory.isCustomItemStackFitInInventory(FakeInventory.java:49)
+	at de.rpgstupe.rpgplugin.player.inventory.FakeInventoryTest.isCustomItemStackFitInInventoryShouldReturnFalseForInvalidCases(FakeInventoryTest.java:54)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)

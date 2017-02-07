@@ -3,6 +3,7 @@ package de.rpgstupe.rpgplugin.player.inventory;
 import org.bukkit.Achievement;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.craftbukkit.v1_11_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,28 +24,29 @@ import org.bukkit.inventory.ItemStack;
 
 import de.rpgstupe.rpgplugin.Main;
 import de.rpgstupe.rpgplugin.SpecialItemCreation;
-import de.rpgstupe.rpgplugin.configuration.ConfigHandler;
+import de.rpgstupe.rpgplugin.configuration.InventoryConfigHandler;
 import de.rpgstupe.rpgplugin.exception.ItemDoesNotFitException;
 import de.rpgstupe.rpgplugin.exception.NoSuchPlayerInWrapperListException;
 import de.rpgstupe.rpgplugin.player.PlayerWrapper;
+import net.minecraft.server.v1_11_R1.Item;
+import net.minecraft.server.v1_11_R1.NBTTagCompound;
 
+/**
+ * this class handles the players inventory by writing into the fake inventory
+ * and putting items (e.g. money) into fixed slots
+ * 
+ * @author Fabian
+ *
+ */
 public class CharacterInventoryHandler implements Listener {
 
-	/**
-	 * this class handles the players inventory by writing into the fake
-	 * inventory and putting items (e.g. money) into fixed slots
-	 * 
-	 * @param pic
-	 * 
-	 * @param plugin
-	 */
 	public CharacterInventoryHandler() {
 	}
 
 	/**
 	 * workaround for getting the players inventory opening event (clientside).
-	 * the "open inventory" achievement is deleted onPlayerJoin. when the player
-	 * gets the achievement (opening the inventory) this event gets fired
+	 * the "open inventory" achievement is deleted onPlayerJoin. When the player
+	 * gets the achievement (opening the inventory) this event is fired
 	 * 
 	 * @param event
 	 */
@@ -122,17 +124,11 @@ public class CharacterInventoryHandler implements Listener {
 				if (ClickType.SHIFT_LEFT.equals(event.getClick()) || ClickType.SHIFT_RIGHT.equals(event.getClick())) {
 					event.setCancelled(true);
 				}
-				if (ConfigHandler.moneySlotsUsed) {
-					if (ConfigHandler.moneySmallSlot == event.getSlot()
-							|| ConfigHandler.moneyMediumSlot == event.getSlot()
-							|| ConfigHandler.moneyLargeSlot == event.getSlot()) {
+				if (event.getSlot() >= 0 && event.getSlot() < pw.getActiveInventory().getInventorySize()) {
+					if (pw.getActiveInventory().getIndex(event.getSlot()).getBoolean("notmoveable")) {
 						event.setCancelled(true);
 					}
 				}
-				if (pw.getActiveInventory().getIndex(event.getSlot()).getBoolean("notmoveable")) {
-					event.setCancelled(true);
-				}
-
 			}
 		} catch (NoSuchPlayerInWrapperListException e) {
 			e.printStackTrace();
@@ -140,7 +136,7 @@ public class CharacterInventoryHandler implements Listener {
 	}
 
 	@EventHandler
-	public void onplayerInteraction(PlayerInteractEvent event) {
+	public void onPlayerInteraction(PlayerInteractEvent event) {
 		Player p = event.getPlayer();
 
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -149,9 +145,11 @@ public class CharacterInventoryHandler implements Listener {
 				switch (stackInHand.getString("type")) {
 				case "compassmenu":
 					// TODO COMPASSMENU
+					System.out.println("COMPASSMENU");
 					break;
 				case "teleporter":
 					// TODO TELEPORTER
+					System.out.println("HEARTSTONE");
 					break;
 				}
 			}
@@ -174,10 +172,10 @@ public class CharacterInventoryHandler implements Listener {
 						|| event.getRawSlots().contains(3) || event.getRawSlots().contains(4)) {
 					event.setCancelled(true);
 				}
-				if (ConfigHandler.moneySlotsUsed) {
-					if (event.getInventorySlots().contains(ConfigHandler.moneySmallSlot)
-							|| event.getInventorySlots().contains(ConfigHandler.moneyMediumSlot)
-							|| event.getInventorySlots().contains(ConfigHandler.moneyLargeSlot)) {
+				if (InventoryConfigHandler.moneySlotsUsed) {
+					if (event.getInventorySlots().contains(InventoryConfigHandler.moneySmallSlot)
+							|| event.getInventorySlots().contains(InventoryConfigHandler.moneyMediumSlot)
+							|| event.getInventorySlots().contains(InventoryConfigHandler.moneyLargeSlot)) {
 						event.setCancelled(true);
 					}
 				}
@@ -221,12 +219,12 @@ public class CharacterInventoryHandler implements Listener {
 						// fit
 						// into
 						// the inventory
-						// ConfigHandler.mergeMoneyIntoPlayerWrapper(pw,
-						// ConfigHandler.moneySmallItem.equals(event.getItem().getItemStack().getType().name())
+						// ConfigInventoryHandler.mergeMoneyIntoPlayerWrapper(pw,
+						// ConfigInventoryHandler.moneySmallItem.equals(event.getItem().getItemStack().getType().name())
 						// ? event.getItem().getItemStack().getAmount() : 0,
-						// ConfigHandler.moneyMediumItem.equals(event.getItem().getItemStack().getType().name())
+						// ConfigInventoryHandler.moneyMediumItem.equals(event.getItem().getItemStack().getType().name())
 						// ? event.getItem().getItemStack().getAmount() : 0,
-						// ConfigHandler.moneyLargeItem.equals(event.getItem().getItemStack().getType().name())
+						// ConfigInventoryHandler.moneyLargeItem.equals(event.getItem().getItemStack().getType().name())
 						// ? event.getItem().getItemStack().getAmount() : 0);
 						// pw.setMoneyInFakeInv();
 
@@ -283,8 +281,8 @@ public class CharacterInventoryHandler implements Listener {
 
 	private boolean isItemTypeMoney(ItemStack stack) {
 		String itemName = stack.getType().name();
-		if (ConfigHandler.moneySmallItem.equals(itemName) || ConfigHandler.moneyMediumItem.equals(itemName)
-				|| ConfigHandler.moneyLargeItem.equals(itemName)) {
+		if (InventoryConfigHandler.moneySmallItem.equals(itemName) || InventoryConfigHandler.moneyMediumItem.equals(itemName)
+				|| InventoryConfigHandler.moneyLargeItem.equals(itemName)) {
 			return true;
 		}
 		return false;

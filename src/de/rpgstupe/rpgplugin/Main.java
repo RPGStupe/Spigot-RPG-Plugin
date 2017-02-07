@@ -36,6 +36,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import de.rpgstupe.rpgplugin.configuration.ConfigHandler;
+import de.rpgstupe.rpgplugin.configuration.InventoryConfigHandler;
 import de.rpgstupe.rpgplugin.customentities.CustomVillager;
 import de.rpgstupe.rpgplugin.database.DatabaseHandler;
 import de.rpgstupe.rpgplugin.database.entities.CharacterEntity;
@@ -159,7 +160,7 @@ public class Main extends JavaPlugin implements Listener {
 		try {
 			Player p = event.getPlayer();
 			PlayerWrapper pw = Main.getPlayerWrapperFromUUID(event.getPlayer().getUniqueId());
-
+			pw.getActiveInventory().updateAllNBTTags();
 			writePlayerDataIntoDatabase(p, pw);
 
 			Main.PLAYER_WRAPPER_LIST.remove(
@@ -247,7 +248,7 @@ public class Main extends JavaPlugin implements Listener {
 			try {
 				PlayerWrapper pw = Main.getPlayerWrapperFromUUID(p.getUniqueId());
 				pw.getCharacters().set(pw.getCharacters().size(), new Character(new MoneyHandler(),
-						ConfigHandler.spawnLocation, new FakeInventory(pw.getPlayer().getInventory().getSize()), null));
+						InventoryConfigHandler.spawnLocation, new FakeInventory(pw.getPlayer().getInventory().getSize()), null));
 			} catch (NoSuchPlayerInWrapperListException e) {
 				e.printStackTrace();
 			}
@@ -419,6 +420,7 @@ public class Main extends JavaPlugin implements Listener {
 		if (pwe == null) {
 			pwe = new PlayerWrapperEntity();
 		}
+
 		pwe.ip = p.getAddress().getHostName();
 		pwe.uuid = p.getUniqueId().toString();
 		pwe.characters = createCharacterSetEntities(pw);
@@ -473,13 +475,12 @@ public class Main extends JavaPlugin implements Listener {
 				switch (event.getName()) {
 				case "Create Character":
 					pw.getCharacters().set(event.getPosition() - 2,
-							new Character(new MoneyHandler(), ConfigHandler.spawnLocation,
+							new Character(new MoneyHandler(), InventoryConfigHandler.spawnLocation,
 									new FakeInventory(pw.getPlayer().getInventory().getSize()), null));
-					pw.getCharacterSelect().setOption(event.getPosition(),
-							new ItemStack(Material.IRON_SWORD), "Character Slot " + (pw.getCharacters().size() - 1),
-							"Open this Character");
-					pw.getCharacterSelect().setOption(event.getPosition() + 9,
-							new ItemStack(Material.BARRIER), "Delete Character", "Delete this Character");
+					pw.getCharacterSelect().setOption(event.getPosition(), new ItemStack(Material.IRON_SWORD),
+							"Character Slot " + (pw.getCharacters().size() - 1), "Open this Character");
+					pw.getCharacterSelect().setOption(event.getPosition() + 9, new ItemStack(Material.BARRIER),
+							"Delete Character", "Delete this Character");
 					break;
 				case "Delete Character":
 					pw.deleteCharacter(event.getPosition() - 11);

@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import de.rpgstupe.rpgplugin.player.inventory.CustomItemStack;
@@ -17,7 +19,6 @@ public class ItemMetaEntity {
 	public List<String> lore;
 	public Set<ItemFlag> itemflags;
 	public boolean unbreakable;
-	public Map<String, String> customMetaTags;
 	
 	
 	
@@ -26,7 +27,6 @@ public class ItemMetaEntity {
 		this.lore = lore;
 		this.itemflags = itemflags;
 		this.unbreakable = unbreakable;
-		this.customMetaTags = new HashMap<String, String>();
 	}
 
 	public ItemMetaEntity() {
@@ -39,5 +39,13 @@ public class ItemMetaEntity {
 
 	public ItemMetaEntity(ItemMeta itemMeta) {
 		this(itemMeta.getDisplayName(), itemMeta.getLore(), itemMeta.getItemFlags(), itemMeta.isUnbreakable());
+	}
+
+	public ItemMeta toItemMeta(Material m) {
+		ItemMeta meta = new ItemStack(m).getItemMeta();
+		meta.setDisplayName(displayName);
+		meta.setLore(lore);
+		meta.setUnbreakable(unbreakable);
+		return meta;
 	}
 }

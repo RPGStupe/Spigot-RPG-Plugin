@@ -1,6 +1,6 @@
 package de.rpgstupe.rpgplugin.player;
 
-import de.rpgstupe.rpgplugin.configuration.ConfigHandler;
+import de.rpgstupe.rpgplugin.configuration.InventoryConfigHandler;
 
 public class MoneyHandler {
 	private int moneySmallAmount;
@@ -38,10 +38,10 @@ public class MoneyHandler {
 	}
 	
 	private void mergeMoney() {
-		moneyMediumAmount += moneySmallAmount / ConfigHandler.moneySmallExchangeRate;
-		moneySmallAmount %= ConfigHandler.moneySmallExchangeRate;
+		moneyMediumAmount += moneySmallAmount / InventoryConfigHandler.moneySmallExchangeRate;
+		moneySmallAmount %= InventoryConfigHandler.moneySmallExchangeRate;
 
-		moneyLargeAmount += moneyMediumAmount / ConfigHandler.moneyMediumExchangeRate;
-		moneyMediumAmount %= ConfigHandler.moneyMediumExchangeRate;
+		moneyLargeAmount += moneyMediumAmount / InventoryConfigHandler.moneyMediumExchangeRate;
+		moneyMediumAmount %= InventoryConfigHandler.moneyMediumExchangeRate;
 	}
 }

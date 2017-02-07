@@ -1,0 +1,27 @@
+quest1:
+  id: 0
+  dependencies: null
+  questbook:
+    title: TestQuest
+    page1:
+      text: This is a TestQuest!!
+    page2:
+      text: This is page 2!
+  questgoals:
+    goal0:
+      type: goto
+      id: 0
+      dependencies: null
+      questbookpage:
+        page1:
+          text: this is the first quest goal
+        page2:
+          text: also multipages
+      task:
+        world: world
+        x1: 4000
+        x2: 4010
+        y1: 0
+        y2: 120
+        z1: 4000
+        z2: 4010

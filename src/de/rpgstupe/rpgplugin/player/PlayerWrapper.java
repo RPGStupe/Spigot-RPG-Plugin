@@ -55,6 +55,7 @@ public class PlayerWrapper {
 			this.setActiveInventory(this.characters.get(this.activeCharacter).getCharacterInventory());
 		}
 		this.buildInventory.set(7, SpecialItemCreation.createHearthstone());
+		System.out.println(this.buildInventory.getIndex(7).getCustomNBTTags());
 		this.buildInventory.set(8, SpecialItemCreation.createCompassMenu());
 	}
 

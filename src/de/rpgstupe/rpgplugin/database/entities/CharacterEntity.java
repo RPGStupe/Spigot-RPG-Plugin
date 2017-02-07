@@ -33,7 +33,7 @@ public class CharacterEntity {
 	}
 
 	public Character toCharacter() {
-		Character character = new Character(moneyHandler.toMoneyHandler(), respawnLocation.toLocation(), characterInventory.toFakeInventory(), null, exp, level, damage, armor);
+		Character character = new Character(moneyHandler.toMoneyHandler(), respawnLocation.toLocation(), characterInventory.toFakeInventory(), null, null, exp, level, damage, armor);
 		return character;
 	}
 }
