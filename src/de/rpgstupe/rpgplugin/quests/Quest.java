@@ -2,6 +2,8 @@ package de.rpgstupe.rpgplugin.quests;
 
 import java.util.List;
 
+import org.bukkit.inventory.ItemStack;
+
 import de.rpgstupe.rpgplugin.player.CustomBook;
 
 public class Quest {
@@ -9,7 +11,7 @@ public class Quest {
 	private List<QuestGoal> questGoals;
 	private int id;
 	private List<Integer> dependencies;
-	private CustomBook questBook;
+	private ItemStack questBook;
 
 	public List<QuestGoal> getQuestGoals() {
 		return questGoals;
@@ -23,7 +25,7 @@ public class Quest {
 		return dependencies;
 	}
 
-	public CustomBook getQuestBook() {
+	public ItemStack getQuestBook() {
 		return questBook;
 	}
 
@@ -39,7 +41,7 @@ public class Quest {
 		this.dependencies = dependencies;
 	}
 
-	public void setQuestBook(CustomBook questBook) {
+	public void setQuestBook(ItemStack questBook) {
 		this.questBook = questBook;
 	}
 }

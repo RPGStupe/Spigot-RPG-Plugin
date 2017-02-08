@@ -3,6 +3,7 @@ package de.rpgstupe.rpgplugin.util;
 import java.lang.reflect.Method;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -90,4 +91,13 @@ public class BookUtil {
          e.printStackTrace();
       }
    }
+   
+   public static ItemStack createBook(String title, String author) {
+		ItemStack writtenBook = new ItemStack(Material.WRITTEN_BOOK);
+		BookMeta bookMeta = (BookMeta) writtenBook.getItemMeta();
+		bookMeta.setTitle(title);
+		bookMeta.setAuthor(author);
+		writtenBook.setItemMeta(bookMeta);
+		return writtenBook;
+	}
 }

@@ -12,11 +12,14 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import de.rpgstupe.rpgplugin.quests.Quest;
 import de.rpgstupe.rpgplugin.quests.QuestGoal;
 import de.rpgstupe.rpgplugin.quests.QuestGoalGoto;
+import de.rpgstupe.rpgplugin.util.BookUtil;
 
 public class QuestsConfigHandler {
 	private File configFile;
@@ -38,7 +41,16 @@ public class QuestsConfigHandler {
 			quest.setDependencies(getDependencyList(questsection));
 
 			quest.setQuestGoals(createQuestGoalList(questsection));
+			quest.setQuestBook(createQuestBook(questsection));
 		}
+	}
+
+	private ItemStack createQuestBook(ConfigurationSection questsection) {
+		ConfigurationSection booksection = questsection.getConfigurationSection("questbook");
+		ItemStack book = BookUtil.createBook(booksection.getString("title"), booksection.getString("author"));
+		BookMeta meta = ((BookMeta)book.getItemMeta());
+		meta.addPage(arg0);
+		return null;
 	}
 
 	private List<QuestGoal> createQuestGoalList(ConfigurationSection questsection) {
